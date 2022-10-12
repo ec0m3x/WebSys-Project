@@ -16,7 +16,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     """Startseite"""
-    return render_template('index.html')
+    return render_template('homepage.html')
 
 
 # Start der Flask-Anwendung
