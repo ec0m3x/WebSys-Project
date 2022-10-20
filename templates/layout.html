@@ -1,16 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <link
+            crossorigin="anonymous"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            rel="stylesheet"
+    />
+    <link
+            crossorigin="anonymous"
+            href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+            rel="stylesheet"
+    />
+    <title>Book a table</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-    <nav> hier kommt die navigationsleiste </nav>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <button
+            class="navbar-toggler"
+            data-target="#navbar"
+            data-toggle="collapse"
+            type="button"
+    >
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbar">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link" href="/" id="home">Home</a>
+            <a class="nav-item nav-link" href="{{ url_for('login')}}" id="login">Login</a>
+
+        </div>
+    </div>
+</nav>
 
     {% block content %}
-        hier content
+
     {% endblock %}
 
     <footer>
