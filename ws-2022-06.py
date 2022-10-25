@@ -32,6 +32,10 @@ def skoch():
 def oak():
     return render_template('oak.html')
 
+@app.route('/dseljaci')
+def dseljaci():
+    return render_template('dseljaci.html')
+
 @app.route('/csoenmez')
 def csoenmez():
     return render_template('csoenmez.html')
