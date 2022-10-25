@@ -32,6 +32,10 @@ def skoch():
 def oak():
     return render_template('oak.html')
 
+@app.route('/csoenmez')
+def csoenmez():
+    return render_template('csoenmez.html')
+
 # Start der Flask-Anwendung
 if __name__ == '__main__':
     app.run(debug=True)
