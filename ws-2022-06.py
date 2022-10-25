@@ -24,6 +24,9 @@ def login():
         request.form['Nutzername']
         request.form['Passwort']
     return render_template("login.html")
+@app.route('/skoch')
+def skoch():
+    return render_template('skoch.html')
 
 # Start der Flask-Anwendung
 if __name__ == '__main__':
