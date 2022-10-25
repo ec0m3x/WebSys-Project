@@ -28,6 +28,10 @@ def login():
 def skoch():
     return render_template('skoch.html')
 
+@app.route('/oak')
+def oak():
+    return render_template('oak.html')
+
 # Start der Flask-Anwendung
 if __name__ == '__main__':
     app.run(debug=True)
