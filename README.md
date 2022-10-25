@@ -2,6 +2,8 @@
 
 Entwicklung einer Flask-Anwendung mit Datenbankanbindung
 
+# Online Tischreservierung "Le Web de la Sys"
+
 https://ws-2022-06.websys.win.hs-heilbronn.de
 ## Benötigte Module
 * **Flask**
@@ -33,8 +35,14 @@ Der Projektordner enthält standardmäßig folgende Dateien und Verzeichnisse:
 * [ ] Nutzer-Registration und Login
 * [ ] Admin-Bereich mit Daten- und Nutzerverwaltung
 * [ ] Einfügen, Ändern und Löschen von Daten: Jeder Nutzer sollte nur seine eigenen Daten, Admin alle Daten bearbeiten können
-* [ ] weitere Mindestanforderungen hier ergänzen ...
+* [ ] Als Anwender Reservierungen tätigen, bearbeiten und löschen
+* [ ] Übersicht anzeigen
+* [ ] Navigationsleiste
 
 ### Optionale Anforderungen
 
-* [ ] Optionale Anforderungen hier ergänzen ...
+* [ ] Übersicht über Verfügbarkeiten
+* [ ] Suchfunktion
+* [ ] Standortermittlung
+* [ ] Kontaktformular
+* [ ] Speisekarte
