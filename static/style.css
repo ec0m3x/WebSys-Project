@@ -1,9 +1,13 @@
-*{
-    color: white;
+* {
     padding: 0;
     box-sizing: border-box;
     font-family: sans-serif;
 }
+
+body {
+    color: white;
+}
+
 h1 {
     color: white;
     font-family: sans-serif;
