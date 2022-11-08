@@ -1,7 +1,7 @@
 """Minimale Flask Anwendung"""
 
 # Import benötigter Flask-Module
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 from flask_login import login_user, login_required, logout_user, current_user
 
 # Import der Verbindungsinformationen zur Datenbank:
@@ -12,6 +12,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from db.db_credentials import DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'la web de la sys'
 
 
 @app.route('/')
@@ -30,12 +31,28 @@ def login():
 
 @app.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
+    #Eingaben des Benutzers
     if request.method == 'POST':
         email = request.form.get('email')
         first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
 
+        #Eingabe überprüfen
+        if len(email) < 4:
+            flash('Email muss länger als 4 Zeichen sein!', category='error')
+        elif len(first_name) < 2:
+            flash('Vorname muss länger als 2 Zeichen sein!', category='error')
+        elif len(last_name) < 2:
+            flash('Nachname muss länger als 2 Zeichen sein!', category='error')
+        elif password1 != password2:
+            flash('Passwörter stimmen nicht überein!', category='error')
+        elif len(password1) < 7:
+            flash('Passwort muss länger als 7 Zeichen sein!', category='error')
+        else:
+            #Benutzer zur Datenbank hinzufügen
+            flash('Account erfolgreich erstellt', category='success')
 
     return render_template("sign_up.html")
 
