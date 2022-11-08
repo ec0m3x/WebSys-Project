@@ -3,17 +3,22 @@
 # Import benötigter Flask-Module
 from flask import Flask, render_template, request, flash
 from flask_login import login_user, login_required, logout_user, current_user
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+DB_NAME = "database.db"
 
 # Import der Verbindungsinformationen zur Datenbank:
 # Variable DB_HOST: Servername des MySQL-Servers
 # Variable DB_USER: Nutzername
 # Variable DB_PASSWORD: Passwort
 # Variable DB_DATABASE: Datenbankname
-from db.db_credentials import DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE
+#from db.db_credentials import DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'la web de la sys'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+db.init_app(app)
 
 @app.route('/')
 def index():
