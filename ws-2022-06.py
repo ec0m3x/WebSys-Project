@@ -87,6 +87,9 @@ def dseljaci():
 def csoenmez():
     return render_template('csoenmez.html')
 
+@app.route('/about_us')
+def about_us():
+    return render_template('about_us.html')
 
 # Start der Flask-Anwendung
 if __name__ == '__main__':

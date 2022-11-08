@@ -1,11 +1,11 @@
 from . import db
 from flask_login import UserMixin
+from sqlalchemy.sql import func
 
 # from datetime import datetime
 
 DEFAULT_RESERVATION_LENGTH = 1  # Eine Stunde
 MAX_TABLE_CAPACITY = 6
-
 
 
 class Guest(db.Model, UserMixin):
@@ -14,6 +14,7 @@ class Guest(db.Model, UserMixin):
     last_name = db.Column(db.String(50), index=True)
     email = db.Column(db.String(50), index=True, unique=True)
     password = db.Column(db.String(50))
+    reservations = db.relationship('Reservation')
 
 
 class Table(db.Model):
@@ -28,4 +29,4 @@ class Reservation(db.Model):
     table_id = db.Column(db.Integer, db.ForeignKey('table.id'))
     table = db.relationship('Table')
     num_guests = db.Column(db.Integer, index=True)
-    reservation_time = db.Column(db.DateTime, index=True)
+    reservation_time = db.Column(db.DateTime(timezone=True), default=func.now(), index=True)
