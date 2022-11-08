@@ -3,47 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <link
-            crossorigin="anonymous"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-            rel="stylesheet"
-    />
-    <link
-            crossorigin="anonymous"
-            href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-            rel="stylesheet"
-    />
     <title>Book a table</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 <body>
-    <div class="banner">
-        <div class="navi">
+<div class="banner">
+    <div class="navi">
         <nav>
             <h2 class="logo">le <span>WEB </span>de la <span>SYS</span></h2>
             <ul>
-                <li><a href="{{ url_for('index') }}">Home</a> </li>
-                <li><a href="{{ url_for('login') }}">Login</a> </li>
-                <li><a href="{{ url_for('skoch') }}">Seite von Sebastian</a> </li>
-                <li><a href="{{ url_for('oak') }}">Seite von Onur</a> </li>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('login') }}">Einloggen</a></li>
+                <li><a href="{{ url_for('sign_up') }}">Registrieren</a></li>
+                <li><a href="{{ url_for('skoch') }}">Seite von Sebastian</a></li>
+                <li><a href="{{ url_for('oak') }}">Seite von Onur</a></li>
                 <li><a href="{{ url_for('dseljaci') }}">Seite von Donjeta</a></li>
-                <li><a href="{{ url_for('csoenmez') }}">Seite von Cemre</a> </li>
-                <li><a href="#">Über uns</a> </li>
+                <li><a href="{{ url_for('csoenmez') }}">Seite von Cemre</a></li>
+                <li><a href="#">Über uns</a></li>
             </ul>
         </nav>
-        </div>
-        {% block content %}
+    </div>
+    {% block content %}
 
     {% endblock %}
-    </div>
+</div>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% if category == 'error' %}
+                <div class="alert alert-danger alert-dismissable fade show role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% else %}
+                <div class="alert alert-success alert-dismissable fade show role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-
-    <footer>
-        Copyright © 2022 Le Web De La Sys - Alle Rechte vorbehalten.
-    </footer>
+<footer>
+    Copyright © 2022 Le Web De La Sys - Alle Rechte vorbehalten.
+</footer>
 
 </body>
 </html>

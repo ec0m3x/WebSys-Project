@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block title %} Account erstellen {% endblock %}
+{% block content %}
+
+    <form method="POST">
+        <h3 align="center">Erstelle hier deinen Account</h3>
+        <div align="center" class="form-group">
+            <label for="email">Email Addresse</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="Gib deine Email ein">
+        </div>
+        <div align="center" class="form-group">
+            <label for="first name">Vorname</label>
+            <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Gib deinen Vornamen ein">
+        </div>
+        <div align="center" class="form-group">
+            <label for="last name">Name</label>
+            <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Gib deinen Nachnamen ein">
+        </div>
+        <div align="center" class="form-group">
+            <label for="password1">Passwort</label>
+            <input type="password" class="form-control" id="password1" name="password1" placeholder="Gib dein Passwort ein">
+        </div>
+        <div align="center" class="form-group">
+            <label for="password2">Passwort bestätigen</label>
+            <input type="password" class="form-control" id="password2" name="password2"
+                   placeholder="Gib dein Passwort erneut ein">
+            <br>
+            <button type="submit">Submit</button>
+        </div>
+
+    </form>
+
+
+
+{% endblock %}
