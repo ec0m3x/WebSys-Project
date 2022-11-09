@@ -47,22 +47,10 @@ def login():
 
 @app.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
-    # Eingaben des Benutzers in Variablen speichern
     if request.method == 'POST':
-        username = request.form.get('username')
-        first_name = request.form.get('firstName')
-        last_name = request.form.get('lastName')
-        email = request.form.get('email')
-        street = request.form.get('strasse')
-        streetnumber = request.form.get('hausnummer')
-        plz = request.form.get('plz')
-        city = request.form.get('stadt')
-        telephone = request.form.get('tel')
-        password1 = request.form.get('password1')
-        password2 = request.form.get('password2')
         # Prüfen auf bereits bestehende Einträge
         cursor = g.con.cursor()
-        cursor.execute('SELECT username FROM users where username= %s', (username,))
+        cursor.execute('SELECT username FROM users where username= %s', (request.form.get('benutzername'),))
         row = cursor.fetchone()
         cursor.close()
         if row is not None:
@@ -70,14 +58,27 @@ def sign_up():
             return redirect(url_for('index'))
 
         cursor = g.con.cursor()
-        cursor.execute('SELECT email FROM users where email= %s', (email,))
+        cursor.execute('SELECT email FROM users where email= %s', (request.form.get('email'),))
         row = cursor.fetchone()
         cursor.close()
         if row is not None:
             flash("Email ist bereits vergeben", category="error")
             return redirect(url_for('index'))
 
-        # Eingabe überprüfen
+        # Eingaben des Benutzers in Variablen speichern
+
+        username = request.form.get('username')
+        first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
+        email = request.form.get('email')
+        street = request.form.get('strasse')
+        plz = request.form.get('plz')
+        city = request.form.get('stadt')
+        telephone = request.form.get('tel')
+        password1 = request.form.get('password1')
+        password2 = request.form.get('password2')
+
+    # Eingabe überprüfen
         if len(email) < 4:
             flash('Email muss länger als 4 Zeichen sein!', category='error')
             return redirect(url_for('index'))
@@ -103,8 +104,8 @@ def sign_up():
             # Nutzer in der Datenbank anlegen
             cursor = g.con.cursor()
             cursor.execute(
-                'INSERT INTO users (email, username, firstname, lastname, street, streetnumber, telephone, password) VALUES (%s, %s, %s, %s,%s, %s,%s, %s,)',
-                (username, first_name, last_name, street, streetnumber, plz, city, telephone, password))
+                'INSERT INTO users (email, username, firstname, lastname, street, plz, city, telephone, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                (email, username, first_name, last_name, street, plz, city, telephone, password))
             g.con.commit()
             cursor.close()
             flash('Account erfolgreich erstellt', category='success')
