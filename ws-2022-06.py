@@ -50,14 +50,6 @@ def sign_up():
     if request.method == 'POST':
         # Prüfen auf bereits bestehende Einträge
         cursor = g.con.cursor()
-        cursor.execute('SELECT username FROM users where username= %s', (request.form.get('benutzername'),))
-        row = cursor.fetchone()
-        cursor.close()
-        if row is not None:
-            flash("Benutzername ist bereits vergeben", category="error")
-            return redirect(url_for('index'))
-
-        cursor = g.con.cursor()
         cursor.execute('SELECT email FROM users where email= %s', (request.form.get('email'),))
         row = cursor.fetchone()
         cursor.close()
@@ -65,8 +57,18 @@ def sign_up():
             flash("Email ist bereits vergeben", category="error")
             return redirect(url_for('index'))
 
-        # Eingaben des Benutzers in Variablen speichern
 
+"""
+        cursor = g.con.cursor()
+        cursor.execute('SELECT email FROM users where email= %s', (request.form.get('email'),))
+        row = cursor.fetchone()
+        cursor.close()
+        if row is not None:
+            flash("Email ist bereits vergeben", category="error")
+            return redirect(url_for('index'))
+"""
+# Eingaben des Benutzers in Variablen speichern
+"""
         username = request.form.get('username')
         first_name = request.form.get('firstName')
         last_name = request.form.get('lastName')
@@ -77,7 +79,9 @@ def sign_up():
         telephone = request.form.get('tel')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
+"""
 
+"""
     # Eingabe überprüfen
         if len(email) < 4:
             flash('Email muss länger als 4 Zeichen sein!', category='error')
@@ -98,20 +102,19 @@ def sign_up():
             flash('Passwort muss länger als 7 Zeichen sein!', category='error')
             return redirect(url_for('index'))
         else:
-            # Benutzer zur Datenbank hinzufügen
+"""  # Benutzer zur Datenbank hinzufügen
+        if request.form['password1'] == request.form['password2']:
             password = generate_password_hash(password1)
 
-            # Nutzer in der Datenbank anlegen
+# Nutzer in der Datenbank anlegen
             cursor = g.con.cursor()
-            cursor.execute(
-                'INSERT INTO users (email, username, firstname, lastname, street, plz, city, telephone, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                (email, username, first_name, last_name, street, plz, city, telephone, password))
+            cursor.execute('INSERT INTO users (email, password) VALUES (%s, %s)', (request.form['email'], password,))
             g.con.commit()
             cursor.close()
+
             flash('Account erfolgreich erstellt', category='success')
             return redirect(url_for('index'))
-
-    return render_template("sign_up.html")
+        return render_template("sign_up.html")
 
 
 @app.route('/logout')
