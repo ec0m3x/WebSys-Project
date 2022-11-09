@@ -32,17 +32,20 @@ Der Projektordner enthält standardmäßig folgende Dateien und Verzeichnisse:
 
 ### Mindestanforderungen
 
-* [ ] Nutzer-Registration und Login
-* [ ] Admin-Bereich mit Daten- und Nutzerverwaltung
-* [ ] Einfügen, Ändern und Löschen von Daten: Jeder Nutzer sollte nur seine eigenen Daten, Admin alle Daten bearbeiten können
-* [ ] Als Anwender Reservierungen tätigen, bearbeiten und löschen
-* [ ] Übersicht anzeigen
+* [ ] Nutzer-Registration: Vor- & Nachname, Anschrift, Geburtsdatum, E-Mail, Benutzername, Telefonnummer, Passwort
+* [ ] Nutzer-Login: Benutzername, Passwort 
+* [ ] Admin-Bereich mit Daten- und Nutzerverwaltung: Benutzername, Passwort
+* [ ] Einfügen, Ändern und Löschen von Daten: Jeder Nutzer sollte nur seine eigenen Daten (persönliche Informationen, als auch Reservierungen), Admin alle Daten bearbeiten können (Freie Termine/Tische hinzufügen, Nutzer löschen, Tischreservierung auflösen)
+* [ ] Als Anwender Reservierungen tätigen, bearbeiten und löschen: Tag, Uhrzeit, Personenanzahl
+* [ ] Übersicht anzeigen über alle getätigten Reservierungen als Nutzer/Admin 
 * [ ] Navigationsleiste
 
 ### Optionale Anforderungen
 
+* [ ] Passwortzurücksetzung-/änderung
+* [ ] Nutzer-Login: gebunden mit E-Mail und Passwort
 * [ ] Übersicht über Verfügbarkeiten
 * [ ] Suchfunktion
 * [ ] Standortermittlung
 * [ ] Kontaktformular
-* [ ] Speisekarte
+* [ ] Speisekarte 
