@@ -2,19 +2,20 @@
 {% block content %}
 
 
-    <br>
     <form method="POST">
-        <div align="center" class="form-group">
-            <label for="email">Email Addresse</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="Gib deine Email ein" required>
-        </div>
-        <div align="center" class="form-group">
-            <label for="password">Passwort</label>
-            <input type="password" class="form-control" id="password" name="password"
-                   placeholder="Gib dein Passwort ein" required>
-            <br>
-            <button type="submit">Abschicken</button>
-        </div>
+        <h1>Login</h1>
+
+        <label for="benutzername">Benutzername</label>
+        <input type="benutzername" class="form-control" id="benutzername" name="benutzername" placeholder="Benutzername eingeben" required>
+
+        <label for="password">Passwort</label>
+        <input type="password" class="form-control" id="password" name="password"
+               placeholder="Passwort eingeben" required>
+        <button type="submit">Anmelden</button>
+
+        <a href="{{ url_for('sign_up') }}">Sie haben noch kein Konto? Hier registrieren!</a>
     </form>
+
+
 
 {% endblock %}

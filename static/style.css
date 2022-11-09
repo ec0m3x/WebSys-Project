@@ -15,7 +15,8 @@ h1 {
 .banner{
     width: 100%;
     height: 100vh;
-    background-image: linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)),url(Tischreservierung.jpg);
+    background-color: black;
+    ''' background-image: linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)),url(Tischreservierung.jpg); '''
     background-size: cover;
     background-position: center;
 }
@@ -64,4 +65,61 @@ footer{
     color: white;
     display: flex;
     justify-content: center;
+}
+
+form {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-gap: 16px;
+    color: white;
+    padding: 1em;
+    background: #1a200e;
+    border: 1px solid lightgrey;
+    margin: 2rem auto 0 auto;
+    max-width: 600px;
+    border-radius: 5px;
+}
+
+form input {
+    background: white;
+    border: 1px solid darkgray;
+}
+
+form button {
+    background: lightgrey;
+    padding: 0.8em;
+    width: 100%;
+    border: 0;
+}
+
+form button:hover {
+    background: burlywood;
+}
+
+label {
+    text-align: right;
+    padding: 0.5em 0.5em 0.5em 0;
+    grid-column: 1 / 2;
+}
+
+input {
+    padding: 0.7em;
+}
+
+input:focus {
+    outline: 3px solid burlywood;
+}
+
+input,
+button {
+    grid-column: 2 / 3;
+}
+
+h1 {
+    grid-column: 2 / 3;
+}
+
+a {
+    color: white;
+    grid-column: 2 / 3;
 }

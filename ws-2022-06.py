@@ -29,7 +29,7 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
-        email = request.form.get('email')
+        benutzername = request.form.get('benutzername')
         password = request.form.get('password')
     return render_template("login.html")
 
@@ -66,26 +66,6 @@ def sign_up():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
-
-
-@app.route('/skoch')
-def skoch():
-    return render_template('skoch.html')
-
-
-@app.route('/oak')
-def oak():
-    return render_template('oak.html')
-
-
-@app.route('/dseljaci')
-def dseljaci():
-    return render_template('dseljaci.html')
-
-
-@app.route('/csoenmez')
-def csoenmez():
-    return render_template('csoenmez.html')
 
 @app.route('/about_us')
 def about_us():
