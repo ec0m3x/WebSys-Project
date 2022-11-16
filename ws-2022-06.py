@@ -157,8 +157,8 @@ def about_us():
 def createtable():
     if request.method == 'POST':
         cursor = g.con.cursor()
-        cursor.execute('INSERT INTO `table` (capacity, date, time) VALUES (%s, %s, %s)',
-                       (request.form['capacity'], request.form['date'], request.form['time']))
+        cursor.execute('INSERT INTO `table` (capacity) VALUES (%s)',
+                       (request.form['capacity'],))
         g.con.commit()
         cursor.close()
         flash('Tisch angelegt.')
