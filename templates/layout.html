@@ -3,41 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <title>Book a table</title>
+    <title>La Web de la Sys</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
-<body>
-<div class="banner">
-    <div class="navi">
-        <nav>
-            <h2 class="logo">le <span>WEB </span>de la <span>SYS</span></h2>
-            <ul>
-                <li><a href="{{ url_for('index') }}">Home</a></li>
-                <li><a href="{{ url_for('login') }}">Einloggen</a></li>
-                <li><a href="{{ url_for('sign_up') }}">Registrieren</a></li>
-                <li><a href="{{ url_for('about_us') }}">Über uns</a></li>
-            </ul>
-        </nav>
-    </div>
-    {% block content %}
 
-    {% endblock %}
-</div>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('index') }}">La Web de la Sys</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('about_us') }}">About Us</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="{{ url_for('sign_up') }}" class="class="glyphicon glyphicon-user">Registrieren</a></li>
+                <li><a href="{{ url_for('login') }}" class="class="glyphicon glyphicon-log-in">Anmelden</a></li>
+                <li><a href="{{ url_for('logout') }}">Abmelden</a></li>
+                <li><a href="{{ url_for('admin') }}">Admin</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
+
         {% for category, message in messages %}
-                <div class="{{ category }}">
+            {% if category == 'error' %}
+                <div class="alert alert-danger alert-dismissable flash-error">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                     {{ message }}
                 </div>
+            {% else %}
+                <div class="alert alert-success alert-dismissable flash-success">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    {{ message }}
+                </div>
+            {% endif %}
         {% endfor %}
+
     {% endif %}
 {% endwith %}
 
-<footer>
-    Copyright © 2022 Le Web De La Sys - Alle Rechte vorbehalten.
-</footer>
-
+<div class="container">
+    <h1>La Web de La Sys Online Tisch Reservierung</h1>
+</div>
+{% block content %} {% endblock %}
 </body>
+<footer class="modal-footer ">
+    <p align="center">Copyright © 2022 Le Web De La Sys - Alle Rechte vorbehalten.</p>
+</footer>
 </html>

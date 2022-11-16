@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+{% block title %} Home {% endblock %}
+{% block content %}
+    <h3>Dein Konto</h3>
+    <table class="table">
+        <tr class="bg-gradient">
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        {% for nutzer in nutzerdaten %}
+            <tr>
+                <td>
+                    {{ nutzer.name }}
+                </td>
+                <td>
+                    {{ nutzer.email }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <h3>Deine Reservierungen</h3>
+    <table class="table">
+        <tr class="bg-gradient">
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        {% for nutzer in nutzerdaten %}
+            <tr>
+                <td>
+                    {{ nutzer.name }}
+                </td>
+                <td>
+                    {{ nutzer.email }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

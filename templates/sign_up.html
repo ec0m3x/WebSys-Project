@@ -1,56 +1,64 @@
 {% extends 'layout.html' %}
 {% block title %} Account erstellen {% endblock %}
 {% block content %}
+    {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+    {% endfor %}
+    <div class="container">
+        <h2>Registrierung</h2>
 
-    <form method="POST">
-        <h1>Registrierung</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Email eingeben" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Benutzername</label>
+                <input type="text" class="form-control" id="username" name="username"
+                       placeholder="Benutzernamen eingeben" required>
+            </div>
+            <div class="form-group">
+                <label for="password1">Passwort</label>
+                <input type="password" class="form-control" id="password1" name="password1"
+                       placeholder="Passwort eingeben" required>
+            </div>
+            <div class="form-group">
+                <label for="password2">Passwort bestätigen</label>
+                <input type="password" class="form-control" id="password2" name="password2"
+                       placeholder="Passwort erneut eingeben" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrieren</button>
+            <a href="{{ url_for('login') }}">Sie sind bereits angemeldet? Hier anmelden!</a>
+        </form>
+    </div>
+    <!--
+            <label for="benutzername">Benutzername</label>
+            <input type="text" class="form-control" id="benutzername" name="benutzername"
+                   placeholder="Benutzername erstellen" required>
 
-        <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Email eingeben" required>
-<!--
-        <label for="benutzername">Benutzername</label>
-        <input type="text" class="form-control" id="benutzername" name="benutzername"
-               placeholder="Benutzername erstellen" required>
+            <label for="first name">Vorname</label>
+            <input type="text" class="form-control" id="vorname" name="vorname"
+                   placeholder="Vornamen eingeben" required>
 
-        <label for="first name">Vorname</label>
-        <input type="text" class="form-control" id="vorname" name="vorname"
-               placeholder="Vornamen eingeben" required>
+            <label for="last name">Nachname</label>
+            <input type="text" class="form-control" id="nachname" name="nachname" placeholder="Nachnamen eingeben"
+                   required>
 
-        <label for="last name">Nachname</label>
-        <input type="text" class="form-control" id="nachname" name="nachname" placeholder="Nachnamen eingeben"
-               required>
+            <label for="strasse">Straße und Nr.</label>
+            <input type="text" class="form-control" id="strasse" name="strasse"
+                   placeholder="Straße und Hausnummer eingeben" required>
 
-        <label for="strasse">Straße und Nr.</label>
-        <input type="text" class="form-control" id="strasse" name="strasse"
-               placeholder="Straße und Hausnummer eingeben" required>
+            <label for="plz">Postleitzahl</label>
+            <input type="text" class="form-control" id="plz" name="plz"
+                   placeholder="Postleitzahl eingeben" required>
 
-        <label for="plz">Postleitzahl</label>
-        <input type="text" class="form-control" id="plz" name="plz"
-               placeholder="Postleitzahl eingeben" required>
+            <label for="stadt">Stadt</label>
+            <input type="text" class="form-control" id="stadt" name="stadt"
+                   placeholder="Stadt eingeben" required>
 
-        <label for="stadt">Stadt</label>
-        <input type="text" class="form-control" id="stadt" name="stadt"
-               placeholder="Stadt eingeben" required>
-
-        <label for="tel">Telefonnummer</label>
-        <input type="number" class="form-control" id="tel" name="tel"
-               placeholder="Telefonnummer eingeben" required>
---!>
-        <label for="password1">Passwort</label>
-        <input type="password" class="form-control" id="password1" name="password1"
-               placeholder="Passwort eingeben" required>
-
-        <label for="password2">Passwort bestätigen</label>
-        <input type="password" class="form-control" id="password2" name="password2"
-               placeholder="Passwort erneut eingeben" required>
-
-        <button type="submit">Registrieren</button>
-
-        <a href="{{ url_for('login') }}">Sie sind bereits angemeldet? Hier anmelden!</a>
-        </div>
-
-    </form>
-
+            <label for="tel">Telefonnummer</label>
+            <input type="number" class="form-control" id="tel" name="tel"
+                   placeholder="Telefonnummer eingeben" required> -->
 
 
 {% endblock %}

@@ -7,9 +7,7 @@ Entwicklung einer Flask-Anwendung mit Datenbankanbindung
 https://ws-2022-06.websys.win.hs-heilbronn.de
 ## Benötigte Module
 * **Flask**
-* **Flask-Login**
 * **mysql-python-connector**
-* **flask-SQLAlchemy**
 
 ## Projektstruktur
 

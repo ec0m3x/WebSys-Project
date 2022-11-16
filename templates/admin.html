@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+{% block title %} Home {% endblock %}
+{% block content %}
+    <h1> Admin Bereich </h1>
+    <br>
+    <h3>Nutzerdaten</h3>
+    <table class="table">
+        <tr class="bg-gradient">
+            <th>Nutzer ID</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        {% for nutzer in nutzerdaten %}
+            <tr>
+                <td>
+                    {{ nutzer.id }}
+                </td>
+                <td>
+                    {{ nutzer.name }}
+                </td>
+                <td>
+                    {{ nutzer.email }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{{ url_for('createtable') }}">Tische anlegen</a>
+    <a href="{{ url_for('deletetable') }}">Tische entfernen</a>
+
+{% endblock %}
