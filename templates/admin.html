@@ -25,6 +25,23 @@
         {% endfor %}
     </table>
 
+    <h3>Tische</h3>
+    <table class="table">
+        <tr class="bg-gradient">
+            <th>Tisch ID</th>
+            <th>Kapazität</th>
+        </tr>
+        {% for tische in tischdaten %}
+            <tr>
+                <td>
+                    {{ tische.id }}
+                </td>
+                <td>
+                    {{ tische.capacity }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
     <a href="{{ url_for('createtable') }}">Tische anlegen</a>
     <a href="{{ url_for('deletetable') }}">Tische entfernen</a>
 

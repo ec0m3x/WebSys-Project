@@ -62,7 +62,12 @@ def admin():
     nutzerdaten = cursor.fetchall()
     # print(nutzerdaten)
     cursor.close()
-    return render_template('admin.html', nutzerdaten=nutzerdaten)
+
+    cursor = g.con.cursor(dictionary=True)
+    cursor.execute('SELECT id, capacity FROM `table`', )
+    tischdaten = cursor.fetchall()
+    cursor.close()
+    return render_template('admin.html', nutzerdaten=nutzerdaten, tischdaten=tischdaten)
 
 
 @app.route('/home', methods=['GET', 'POST'])
@@ -157,8 +162,16 @@ def about_us():
 def createtable():
     if request.method == 'POST':
         cursor = g.con.cursor()
-        cursor.execute('INSERT INTO `table` (capacity) VALUES (%s)',
-                       (request.form['capacity'],))
+        cursor.execute('SELECT id, capacity FROM `table` where id = %s', (request.form["id"],))
+        row = cursor.fetchone()
+        cursor.close()
+        if row is not None:
+            flash("Tisch bereits hinzugefügt", category="error")
+            return redirect(url_for('createtable'))
+
+        cursor = g.con.cursor()
+        cursor.execute('INSERT INTO `table` (id, capacity) VALUES (%s, %s)',
+                       (request.form['id'],request.form['capacity'],))
         g.con.commit()
         cursor.close()
         flash('Tisch angelegt.')
@@ -169,7 +182,7 @@ def createtable():
 def deletetable():
     if request.method == 'POST':
         cursor = g.con.cursor()
-        cursor.execute('SELECT capacity FROM `table` where capacity = %s', (request.form["capacity"],))
+        cursor.execute('SELECT id FROM `table` where id = %s', (request.form["id"],))
         row = cursor.fetchone()
         cursor.close()
 
@@ -178,9 +191,10 @@ def deletetable():
             return redirect(url_for('deletetable'))
 
         cursor = g.con.cursor()
-        cursor.execute("DELETE FROM `table` WHERE capacity=%s", (request.form['capacity'],))
+        cursor.execute("DELETE FROM `table` WHERE id=%s", (request.form['id'],))
         g.con.commit()
         cursor.close()
+        flash("Tisch gelöscht")
     return render_template('deletetable.html')
 
 
@@ -199,6 +213,7 @@ def userdata(user_id):
     return render_template('userdata.html', htmldaten=daten)
 
 @app.route('/changepassword/<int:user_id>', methods=['GET', 'POST'])
+@login_required
 def changepassword(user_id):
     if request.method == "POST":
         cursor = g.con.cursor()
