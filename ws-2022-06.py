@@ -79,7 +79,27 @@ def home():
     cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
     nutzerdaten = cursor.fetchall()
     cursor.close()
-    return render_template('home.html', nutzerdaten=nutzerdaten)
+
+    cursor = g.con.cursor(dictionary=True)
+    cursor.execute('SELECT capacity FROM `table`', )
+    tischdaten = cursor.fetchall()
+    cursor.close()
+
+    if request.method == "POST":
+        cursor = g.con.cursor()
+        cursor.execute('SELECT id FROM `table` where capacity = %s', (request.form["capacity"],))
+        row = cursor.fetchone()
+        table_id = row[0]
+        cursor.close()
+
+        cursor = g.con.cursor()
+        cursor.execute('INSERT INTO `reservations` (date, time, tableid, userid) VALUES (%s, %s, %s, %s)',
+                       (request.form['date'], request.form['time'], table_id, 3,))
+        g.con.commit()
+        cursor.close()
+        flash("Reservierung erfolgreich!")
+
+    return render_template('home.html', nutzerdaten=nutzerdaten, tischdaten=tischdaten)
 
 
 @app.route('/login', methods=['GET', 'POST'])
