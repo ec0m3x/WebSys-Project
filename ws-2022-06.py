@@ -198,6 +198,30 @@ def userdata(user_id):
     cursor.close()
     return render_template('userdata.html', htmldaten=daten)
 
+@app.route('/changepassword/<int:user_id>', methods=['GET', 'POST'])
+def changepassword(user_id):
+    if request.method == "POST":
+        cursor = g.con.cursor()
+        cursor.execute('SELECT password FROM `users` where id = %s', (user_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        pw_from_db = row[0]
+        if check_password_hash(pwhash=pw_from_db, password=request.form["oldpassword"]):
+            if request.form['newpassword1'] == request.form['newpassword2']:
+                newpassword1 = generate_password_hash(password=request.form['newpassword1'])
+                cursor = g.con.cursor()
+                cursor.execute("UPDATE `users` SET password=%s WHERE id=%s",
+                               (newpassword1, user_id,))
+                g.con.commit()
+                cursor.close()
+                flash("Passwort geändert")
+                return redirect(url_for('login'))
+            flash("Passwörter stimmen nicht überein", category="error")
+            return redirect(url_for('home'))
+        flash("Altes Passwort nicht korrekt", category="error")
+        return redirect(url_for('home'))
+    return render_template('changepassword.html')
+
 # Start der Flask-Anwendung
 if __name__ == '__main__':
     app.run(debug=True)
