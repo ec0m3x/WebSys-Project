@@ -38,41 +38,36 @@
 
     <h2>Reservierung hinzufügen</h2>
 
-    <div class="form-group">
-        <label for="capacity">Personenanzahl: </label>
-        <select name="capacity" id="capacity">
-        {% for tische in tischdaten %}
-            <tr>
-                <td>
-                    <option value="1">{{ tische.capacity }}</option>
-                </td>
-            </tr>
-        {% endfor %}
-        </select>
-    </div>
-
     <div class="container">
         <form method="POST">
             <div class="form-group">
-                <label for="date">Datum festlegen:</label>
-                <input type="date" id="date" name="date">
+                <label for="capacity">Personenanzahl: </label>
+                <select name="capacity" id="capacity">
+                {% for tische in tischdaten %}
+                    <option>{{ tische.capacity }}</option>
+                {% endfor %}
+                </select>
             </div>
-            <div class="form-group">
-                <label for="time">Uhrzeit festlegen:</label>
-                <input type="time" id="time" name="time" min="18:00" max="00:00">
-            </div>
+                <div class="form-group">
+                    <label for="date">Datum festlegen:</label>
+                    <input type="date" id="date" name="date">
+                </div>
+                <div class="form-group">
+                    <label for="time">Uhrzeit festlegen:</label>
+                    <input type="time" id="time" name="time" min="18:00" max="00:00">
+                </div>
 
-            <div class="form-group">
-                    <label for="dauer">Aufenthaltsdauer: </label>
-                    <select name="dauer" id="dauer">
-                    <option value="1">30 Minuten</option>
-                    <option value="2">45 Minuten</option>
-                    <option value="3">1 Stunde</option>
-                    <option value="4">1 Stunde 30 Minuten</option>
-                    <option value="5">2 Stunden</option>
-                    </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Reservieren</button>
+                <div class="form-group">
+                        <label for="dauer">Aufenthaltsdauer: </label>
+                        <select name="dauer" id="dauer">
+                        <option value="1">30 Minuten</option>
+                        <option value="2">45 Minuten</option>
+                        <option value="3">1 Stunde</option>
+                        <option value="4">1 Stunde 30 Minuten</option>
+                        <option value="5">2 Stunden</option>
+                        </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Reservieren</button>
         </form>
     </div>
 {% endblock %}

@@ -1,48 +1,80 @@
 {% extends 'layout.html' %}
 {% block title %} Home {% endblock %}
 {% block content %}
-    <h1> Admin Bereich </h1>
-    <br>
-    <h3>Nutzerdaten</h3>
-    <table class="table">
-        <tr class="bg-gradient">
-            <th>Nutzer ID</th>
-            <th>Name</th>
-            <th>Email</th>
-        </tr>
-        {% for nutzer in nutzerdaten %}
-            <tr>
-                <td>
-                    {{ nutzer.id }}
-                </td>
-                <td>
-                    {{ nutzer.name }}
-                </td>
-                <td>
-                    {{ nutzer.email }}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+    <div class="container">
+        <h1> Admin Bereich </h1>
+        <br>
 
-    <h3>Tische</h3>
-    <table class="table">
-        <tr class="bg-gradient">
-            <th>Tisch ID</th>
-            <th>Kapazität</th>
-        </tr>
-        {% for tische in tischdaten %}
-            <tr>
-                <td>
-                    {{ tische.id }}
-                </td>
-                <td>
-                    {{ tische.capacity }}
-                </td>
+        <h3>Reservierungen</h3>
+        <table class="table">
+            <tr class="bg-gradient">
+                <th>Reservierungs ID</th>
+                <th>Datum</th>
+                <th>Uhrzeit</th>
+                <th>Tisch ID</th>
+                <th>Nutzer ID</th>
             </tr>
-        {% endfor %}
-    </table>
-    <a href="{{ url_for('createtable') }}">Tische anlegen</a>
-    <a href="{{ url_for('deletetable') }}">Tische entfernen</a>
+            {% for reservierung in reservierungdaten %}
+                <tr>
+                    <td>
+                        {{ reservierung.id }}
+                    </td>
+                    <td>
+                        {{ reservierung.date }}
+                    </td>
+                    <td>
+                        {{ reservierung.time }}
+                    </td>
+                    <td>
+                        {{ reservierung.tableid }}
+                    </td>
+                    <td>
+                        {{ reservierung.userid }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h3>Nutzerdaten <a href="{{ url_for('deleteuser') }}">entfernen</a></h3>
+        <table class="table">
+            <tr class="bg-gradient">
+                <th>Nutzer ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+            {% for nutzer in nutzerdaten %}
+                <tr>
+                    <td>
+                        {{ nutzer.id }}
+                    </td>
+                    <td>
+                        {{ nutzer.name }}
+                    </td>
+                    <td>
+                        {{ nutzer.email }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <h3 >Tische <a href="{{ url_for('createtable') }}">anlegen</a>
+            <a href="{{ url_for('deletetable') }}">entfernen</a></h3>
+        <table class="table">
+            <tr class="bg-gradient">
+                <th>Tisch ID</th>
+                <th>Kapazität</th>
+            </tr>
+            {% for tische in tischdaten %}
+                <tr>
+                    <td>
+                        {{ tische.id }}
+                    </td>
+                    <td>
+                        {{ tische.capacity }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 
 {% endblock %}

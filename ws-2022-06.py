@@ -56,6 +56,11 @@ def index():
 # Admin Bereich
 @login_required
 def admin():
+    cursor = g.con.cursor(dictionary=True)
+    cursor.execute('SELECT id, date, time, tableid, userid FROM reservations', )
+    reservierungdaten = cursor.fetchall()
+    cursor.close()
+
     # Alle Nutzer als dictionaries auslesen
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, name, email FROM users', )
@@ -67,7 +72,7 @@ def admin():
     cursor.execute('SELECT id, capacity FROM `table`', )
     tischdaten = cursor.fetchall()
     cursor.close()
-    return render_template('admin.html', nutzerdaten=nutzerdaten, tischdaten=tischdaten)
+    return render_template('admin.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten, tischdaten=tischdaten)
 
 
 @app.route('/home', methods=['GET', 'POST'])
@@ -256,6 +261,25 @@ def changepassword(user_id):
         flash("Altes Passwort nicht korrekt", category="error")
         return redirect(url_for('home'))
     return render_template('changepassword.html')
+
+@app.route('/deleteuser', methods=['GET','POST'])
+def deleteuser():
+    if request.method == 'POST':
+        cursor = g.con.cursor()
+        cursor.execute('SELECT id FROM `users` where id = %s', (request.form["id"],))
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row is None:
+            flash("Nutzer existiert nicht!", category="error")
+            return redirect(url_for('deleteuser'))
+
+        cursor = g.con.cursor()
+        cursor.execute("DELETE FROM `users` WHERE id=%s", (request.form['id'],))
+        g.con.commit()
+        cursor.close()
+        flash("Nutzer entfernt")
+    return render_template('deleteuser.html')
 
 # Start der Flask-Anwendung
 if __name__ == '__main__':
