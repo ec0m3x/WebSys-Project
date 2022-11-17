@@ -1,16 +1,20 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-<div class="container">
+    <div class="container">
         <h2>Daten bearbeiten</h2>
         <form method="POST">
             <div class="form-group">
                 <label for="name">Benutzername:</label>
-                <input type="text" name="name" value="{{ htmldaten.name }}" required>
+                <input type="text" class="form-control" id="name" name="name"
+                       value="{{ htmldaten.name }}"
+                       required>
             </div>
             <div class="form-group">
-                <label for="email">E-Mail:</label>
-                <input type="email" name="email" value="{{ htmldaten.email }}" required>
+                <label for="email">E-Mail</label>
+                <input type="email" class="form-control" id="email" name="email"
+                       value="{{ htmldaten.email }}"
+                       required>
             </div>
             <button type="submit" class="btn btn-primary">Ändern</button>
         </form>

@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <h3>Deine Informationen <a href="{{ url_for('userdata') }}">bearbeiten</a> | <a href="{{ url_for('changepassword') }}">Passwort ändern</a></h3>
+        <table class="table">
+            <tr class="bg-gradient">
+                <th>Name</th>
+                <th>E-Mail</th>
+            </tr>
+            {% for nutzer in nutzerdaten %}
+                <tr>
+                    <td>
+                        {{ nutzer.name }}
+                    </td>
+                    <td>
+                        {{ nutzer.email }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

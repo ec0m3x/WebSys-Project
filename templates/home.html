@@ -1,63 +1,56 @@
 {% extends 'layout.html' %}
 {% block title %} Home {% endblock %}
 {% block content %}
-    <h3>Dein Konto</h3>
-    <table class="table">
-        <tr class="bg-gradient">
-            <th>Name</th>
-            <th>Email</th>
-        </tr>
-        {% for nutzer in nutzerdaten %}
-            <tr>
-                <td>
-                    {{ nutzer.name }}
-                </td>
-                <td>
-                    {{ nutzer.email }}
-                </td>
+    <div class="container">
+        <h3>Deine Reservierungen</h3>
+        <table class="table">
+            <tr class="bg-gradient">
+                <th>Reservierungs ID</th>
+                <th>Datum</th>
+                <th>Zeit</th>
+                <th>Tisch ID</th>
             </tr>
-        {% endfor %}
-    </table>
-    <h3>Deine Reservierungen</h3>
-    <table class="table">
-        <tr class="bg-gradient">
-            <th>Name</th>
-            <th>Email</th>
-        </tr>
-        {% for nutzer in nutzerdaten %}
-            <tr>
-                <td>
-                    {{ nutzer.name }}
-                </td>
-                <td>
-                    {{ nutzer.email }}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-
-    <h2>Reservierung hinzufügen</h2>
+            {% for reservierung in reservierungdaten %}
+                <tr>
+                    <td>
+                        {{ reservierung.id }}
+                    </td>
+                    <td>
+                        {{ reservierung.date }}
+                    </td>
+                    <td>
+                        {{ reservierung.time }}
+                    </td>
+                    <td>
+                        {{ reservierung.tableid }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 
     <div class="container">
+        <h2>Reservierung hinzufügen</h2>
         <form method="POST">
             <div class="form-group">
-                <label for="capacity">Personenanzahl: </label>
+                <label for="capacity">Personenanzahl:</label>
                 <select name="capacity" id="capacity">
                 {% for tische in tischdaten %}
                     <option>{{ tische.capacity }}</option>
                 {% endfor %}
                 </select>
             </div>
-                <div class="form-group">
-                    <label for="date">Datum festlegen:</label>
-                    <input type="date" id="date" name="date">
-                </div>
-                <div class="form-group">
-                    <label for="time">Uhrzeit festlegen:</label>
-                    <input type="time" id="time" name="time" min="18:00" max="00:00">
-                </div>
-
-                <div class="form-group">
+            <div class="form-group">
+                <label for="date">Datum:</label>
+                <input type="date" class="form-control" id="date" name="date"
+                       placeholder="Datum auswählen">
+            </div>
+            <div class="form-group">
+                <label for="time">Uhrzeit:</label>
+                <input type="time" class="form-control" id="time" name="time"
+                       placeholder="Uhrzeit auswählen">
+            </div>
+            <div class="form-group">
                         <label for="dauer">Aufenthaltsdauer: </label>
                         <select name="dauer" id="dauer">
                         <option value="1">30 Minuten</option>
@@ -66,8 +59,8 @@
                         <option value="4">1 Stunde 30 Minuten</option>
                         <option value="5">2 Stunden</option>
                         </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Reservieren</button>
+            </div>
+            <button type="submit" class="btn btn-primary">Tisch reservieren</button>
         </form>
     </div>
 {% endblock %}

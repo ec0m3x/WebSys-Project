@@ -80,6 +80,17 @@ def admin():
 def home():
     """Hauptseite"""
 
+    cursor = g.con.cursor()
+    cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
+    row = cursor.fetchone()
+    user_id = row[0]
+    cursor.close()
+
+    cursor = g.con.cursor(dictionary=True)
+    cursor.execute('SELECT id, date, time, tableid FROM `reservations` where userid = %s', (user_id,))
+    reservierungdaten = cursor.fetchall()
+    cursor.close()
+
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
     nutzerdaten = cursor.fetchall()
@@ -91,20 +102,21 @@ def home():
     cursor.close()
 
     if request.method == "POST":
+
         cursor = g.con.cursor()
         cursor.execute('SELECT id FROM `table` where capacity = %s', (request.form["capacity"],))
-        row = cursor.fetchone()
-        table_id = row[0]
+        row2 = cursor.fetchone()
+        table_id = row2[0]
         cursor.close()
 
         cursor = g.con.cursor()
         cursor.execute('INSERT INTO `reservations` (date, time, tableid, userid) VALUES (%s, %s, %s, %s)',
-                       (request.form['date'], request.form['time'], table_id, 3,))
+                       (request.form['date'], request.form['time'], table_id, user_id,))
         g.con.commit()
         cursor.close()
         flash("Reservierung erfolgreich!")
 
-    return render_template('home.html', nutzerdaten=nutzerdaten, tischdaten=tischdaten)
+    return render_template('home.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten, tischdaten=tischdaten)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -220,12 +232,18 @@ def deletetable():
         g.con.commit()
         cursor.close()
         flash("Tisch gelöscht")
-    return render_template('deletetable.html')
+    return render_template('admin.html')
 
 
-@app.route('/userdata/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/userdata', methods=['GET', 'POST'])
 @login_required
-def userdata(user_id):
+def userdata():
+    cursor = g.con.cursor()
+    cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
+    row = cursor.fetchone()
+    user_id = row[0]
+    cursor.close()
+
     cursor = g.con.cursor(dictionary=True)
     if request.method == "POST":
         cursor.execute("UPDATE `users` SET name=%s, email=%s WHERE id=%s",
@@ -235,17 +253,24 @@ def userdata(user_id):
     cursor.execute("SELECT id, name, email FROM `users` WHERE id=%s", (user_id,))
     daten = cursor.fetchone()
     cursor.close()
+    flash("Erfolgreich geändert!")
     return render_template('userdata.html', htmldaten=daten)
 
-@app.route('/changepassword/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/changepassword', methods=['GET', 'POST'])
 @login_required
-def changepassword(user_id):
+def changepassword():
     if request.method == "POST":
         cursor = g.con.cursor()
-        cursor.execute('SELECT password FROM `users` where id = %s', (user_id,))
+        cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
         row = cursor.fetchone()
+        user_id = row[0]
         cursor.close()
-        pw_from_db = row[0]
+
+        cursor = g.con.cursor()
+        cursor.execute('SELECT password FROM `users` where id = %s', (user_id,))
+        row2 = cursor.fetchone()
+        cursor.close()
+        pw_from_db = row2[0]
         if check_password_hash(pwhash=pw_from_db, password=request.form["oldpassword"]):
             if request.form['newpassword1'] == request.form['newpassword2']:
                 newpassword1 = generate_password_hash(password=request.form['newpassword1'])
@@ -275,12 +300,57 @@ def deleteuser():
             return redirect(url_for('deleteuser'))
 
         cursor = g.con.cursor()
-        cursor.execute("DELETE FROM `users` WHERE id=%s", (request.form['id'],))
+        cursor.execute('SELECT userid FROM `reservations` where userid = %s', (request.form["id"],))
+        row2 = cursor.fetchone()
+        cursor.close()
+
+        if row2 is None:
+            cursor = g.con.cursor()
+            cursor.execute("DELETE FROM `users` WHERE id=%s", (request.form['id'],))
+            g.con.commit()
+            cursor.close()
+            flash("Nutzer entfernt")
+            return redirect(url_for('admin'))
+        flash("Zuerst Reservierung des Nutzers aufheben!", category="error")
+    return render_template('deleteuser.html')
+
+@app.route('/deletereservation', methods=['GET','POST'])
+def deletereservation():
+    if request.method == 'POST':
+        cursor = g.con.cursor()
+        cursor.execute('SELECT id FROM `reservations` where id = %s', (request.form["id"],))
+        row = cursor.fetchone()
+        cursor.close()
+
+        if row is None:
+            flash("Reservierung existiert nicht!", category="error")
+            return redirect(url_for('deletereservation'))
+
+        cursor = g.con.cursor()
+        cursor.execute("DELETE FROM `reservations` WHERE id=%s", (request.form['id'],))
         g.con.commit()
         cursor.close()
-        flash("Nutzer entfernt")
-    return render_template('deleteuser.html')
+        flash("Reservierung gelöscht")
+    return render_template('admin.html')
+
+@app.route('/account', methods=['GET', 'POST'])
+@login_required
+def account():
+    cursor = g.con.cursor()
+    cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
+    row = cursor.fetchone()
+    user_id = row[0]
+    cursor.close()
+
+    cursor = g.con.cursor(dictionary=True)
+    cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
+    nutzerdaten = cursor.fetchall()
+    cursor.close()
+
+    return render_template('account.html', nutzerdaten=nutzerdaten)
+
 
 # Start der Flask-Anwendung
 if __name__ == '__main__':
     app.run(debug=True)
+

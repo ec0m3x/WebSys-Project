@@ -5,7 +5,7 @@
         <h1> Admin Bereich </h1>
         <br>
 
-        <h3>Reservierungen</h3>
+        <h3>Reservierungen <a href="{{ url_for('deletereservation') }}">entfernen</a></h3>
         <table class="table">
             <tr class="bg-gradient">
                 <th>Reservierungs ID</th>
@@ -57,7 +57,7 @@
             {% endfor %}
         </table>
 
-        <h3 >Tische <a href="{{ url_for('createtable') }}">anlegen</a>
+        <h3 >Tische <a href="{{ url_for('createtable') }}">anlegen</a> |
             <a href="{{ url_for('deletetable') }}">entfernen</a></h3>
         <table class="table">
             <tr class="bg-gradient">
