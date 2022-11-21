@@ -2,7 +2,7 @@
 from functools import wraps
 from flask import Flask, render_template, request, flash, session, url_for, g, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime
+from datetime import datetime, time
 import mysql.connector
 
 # Import der Verbindungsinformationen zur Datenbank:
@@ -125,43 +125,49 @@ def home():
             flash("Dauer der Reservierung darf 2 Stunden nicht überschreiten!", category="error")
             return redirect(url_for('home'))
 
-        cursor = g.con.cursor(buffered=True)
-        cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
-                       (request.form["starttime"],))
-        row3 = cursor.fetchone()
-        cursor.close()
+        '''Überprüfen ob im Öffnungszeiten-Rahmen'''
+        start = time(18, 0)
+        end = time(23, 59)
+        if start <= starttime.time() <= end and start <= endtime.time() <= end:
 
-        cursor = g.con.cursor(buffered=True)
-        cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
-                       (request.form["endtime"],))
-        row4 = cursor.fetchone()
-        cursor.close()
+            cursor = g.con.cursor(buffered=True)
+            cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
+                           (request.form["starttime"],))
+            row3 = cursor.fetchone()
+            cursor.close()
 
-        cursor = g.con.cursor(buffered=True)
-        cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
-                       (request.form["starttime"],))
-        row5 = cursor.fetchone()
-        cursor.close()
+            cursor = g.con.cursor(buffered=True)
+            cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
+                           (request.form["endtime"],))
+            row4 = cursor.fetchone()
+            cursor.close()
 
-        cursor = g.con.cursor(buffered=True)
-        cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
-                       (request.form["endtime"],))
-        row6 = cursor.fetchone()
-        cursor.close()
+            cursor = g.con.cursor(buffered=True)
+            cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
+                           (request.form["starttime"],))
+            row5 = cursor.fetchone()
+            cursor.close()
 
-        if (row3 is not None or row4 is not None) and \
-                (row5 is not None and table_id == row5[0] or row6 is not None and table_id == row6[0]):
-            flash("Kein Tisch mit dieser Kapazität ist zur ausgewählten Uhrzeit verfügbar.", category="error")
-            return redirect(url_for('home'))
+            cursor = g.con.cursor(buffered=True)
+            cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
+                           (request.form["endtime"],))
+            row6 = cursor.fetchone()
+            cursor.close()
 
-        cursor = g.con.cursor()
-        cursor.execute('INSERT INTO `reservations` (starttime, endtime, tableid, userid) VALUES '
-                       '(%s, %s, %s, %s)',
-                       (request.form['starttime'], request.form['endtime'], table_id, user_id,))
-        g.con.commit()
-        cursor.close()
-        flash("Reservierung erfolgreich!")
+            if (row3 is not None or row4 is not None) and \
+                    (row5 is not None and table_id == row5[0] or row6 is not None and table_id == row6[0]):
+                flash("Kein Tisch mit dieser Kapazität ist zur ausgewählten Uhrzeit verfügbar.", category="error")
+                return redirect(url_for('home'))
 
+            cursor = g.con.cursor()
+            cursor.execute('INSERT INTO `reservations` (starttime, endtime, tableid, userid) VALUES '
+                           '(%s, %s, %s, %s)',
+                           (request.form['starttime'], request.form['endtime'], table_id, user_id,))
+            g.con.commit()
+            cursor.close()
+            flash("Reservierung erfolgreich!")
+        else:
+            flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
     return render_template('home.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten,
                            tischdaten=tischdaten)
 
@@ -194,6 +200,7 @@ def login():
 @app.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     if request.method == 'POST':
+
         cursor = g.con.cursor(buffered=True)
         cursor.execute('SELECT name, email FROM users where name = %s', (request.form["username"],))
         row = cursor.fetchone()
@@ -224,7 +231,7 @@ def sign_up():
             cursor.close()
             flash("Benutzer angelegt!")
             return redirect(url_for('index'))
-
+        flash("Passwörter stimmen nicht überein!", category="error")
     return render_template("sign_up.html")
 
 
@@ -293,14 +300,32 @@ def userdata():
 
     cursor = g.con.cursor(dictionary=True)
     if request.method == "POST":
+        '''Überprüfen, ob Username schon vergeben'''
+        if request.form["name"] != session.get('username'):
+            cursor.execute('SELECT name FROM users where name = %s', (request.form["name"],))
+            row = cursor.fetchone()
+            if row is not None:
+                flash("Benutzername ist bereits vergeben", category="error")
+                return redirect(url_for('userdata'))
+
+        cursor.execute('SELECT email FROM users where name = %s', (session.get("username"),))
+        row2 = cursor.fetchone()
+        e_mail = row2['email']
+        if request.form["email"] != e_mail:
+            cursor.execute('SELECT email FROM users where email = %s', (request.form["email"],))
+            row = cursor.fetchone()
+            if row is not None:
+                flash("Email ist bereits vergeben", category="error")
+                return redirect(url_for('userdata'))
         cursor.execute("UPDATE `users` SET name=%s, email=%s WHERE id=%s",
                        (request.form['name'], request.form['email'],
                         user_id,))
         g.con.commit()
+        session['username'] = request.form['name']
+        flash("Erfolgreich geändert!")
     cursor.execute("SELECT id, name, email FROM `users` WHERE id=%s", (user_id,))
     daten = cursor.fetchone()
     cursor.close()
-    flash("Erfolgreich geändert!")
     return render_template('userdata.html', htmldaten=daten)
 
 @app.route('/changepassword', methods=['GET', 'POST'])
