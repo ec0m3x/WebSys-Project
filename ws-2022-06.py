@@ -2,6 +2,7 @@
 from functools import wraps
 from flask import Flask, render_template, request, flash, session, url_for, g, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 import mysql.connector
 
 # Import der Verbindungsinformationen zur Datenbank:
@@ -57,7 +58,7 @@ def index():
 @login_required
 def admin():
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, date, time, tableid, userid FROM reservations', )
+    cursor.execute('SELECT id, starttime, endtime, tableid, userid FROM reservations', )
     reservierungdaten = cursor.fetchall()
     cursor.close()
 
@@ -72,7 +73,8 @@ def admin():
     cursor.execute('SELECT id, capacity FROM `table`', )
     tischdaten = cursor.fetchall()
     cursor.close()
-    return render_template('admin.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten, tischdaten=tischdaten)
+    return render_template('admin.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten,
+                           tischdaten=tischdaten)
 
 
 @app.route('/home', methods=['GET', 'POST'])
@@ -87,7 +89,7 @@ def home():
     cursor.close()
 
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, date, time, tableid FROM `reservations` where userid = %s', (user_id,))
+    cursor.execute('SELECT id, starttime, endtime, tableid FROM `reservations` where userid = %s', (user_id,))
     reservierungdaten = cursor.fetchall()
     cursor.close()
 
@@ -103,20 +105,65 @@ def home():
 
     if request.method == "POST":
 
-        cursor = g.con.cursor()
-        cursor.execute('SELECT id FROM `table` where capacity = %s', (request.form["capacity"],))
+        cursor = g.con.cursor(buffered=True)
+        cursor.execute('SELECT id FROM `table` where capacity >= %s', (request.form["capacity"],))
         row2 = cursor.fetchone()
+        cursor.close()
+        if row2 is None:
+            flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
+            return redirect(url_for('home'))
         table_id = row2[0]
+
+        '''2 Stunden Dauer nicht überschreiten'''
+        starttime = datetime.strptime(request.form["starttime"], '%Y-%m-%dT%H:%M')
+        endtime= datetime.strptime(request.form["endtime"], '%Y-%m-%dT%H:%M')
+        diff = endtime - starttime
+        sec = diff.total_seconds()
+        hours = sec / (60 * 60)
+
+        if hours > 2:
+            flash("Dauer der Reservierung darf 2 Stunden nicht überschreiten!", category="error")
+            return redirect(url_for('home'))
+
+        cursor = g.con.cursor(buffered=True)
+        cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
+                       (request.form["starttime"],))
+        row3 = cursor.fetchone()
         cursor.close()
 
+        cursor = g.con.cursor(buffered=True)
+        cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
+                       (request.form["endtime"],))
+        row4 = cursor.fetchone()
+        cursor.close()
+
+        cursor = g.con.cursor(buffered=True)
+        cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
+                       (request.form["starttime"],))
+        row5 = cursor.fetchone()
+        cursor.close()
+
+        cursor = g.con.cursor(buffered=True)
+        cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
+                       (request.form["endtime"],))
+        row6 = cursor.fetchone()
+        cursor.close()
+
+        if (row3 is not None or row4 is not None) and \
+                (row5 is not None and table_id == row5[0] or row6 is not None and table_id == row6[0]):
+            flash("Kein Tisch mit dieser Kapazität ist zur ausgewählten Uhrzeit verfügbar.", category="error")
+            return redirect(url_for('home'))
+
         cursor = g.con.cursor()
-        cursor.execute('INSERT INTO `reservations` (date, time, tableid, userid) VALUES (%s, %s, %s, %s)',
-                       (request.form['date'], request.form['time'], table_id, user_id,))
+        cursor.execute('INSERT INTO `reservations` (starttime, endtime, tableid, userid) VALUES '
+                       '(%s, %s, %s, %s)',
+                       (request.form['starttime'], request.form['endtime'], table_id, user_id,))
         g.con.commit()
         cursor.close()
         flash("Reservierung erfolgreich!")
 
-    return render_template('home.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten, tischdaten=tischdaten)
+    return render_template('home.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten,
+                           tischdaten=tischdaten)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -331,7 +378,7 @@ def deletereservation():
         g.con.commit()
         cursor.close()
         flash("Reservierung gelöscht")
-    return render_template('admin.html')
+    return render_template('deletereservation.html')
 
 @app.route('/account', methods=['GET', 'POST'])
 @login_required

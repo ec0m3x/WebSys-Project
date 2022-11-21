@@ -2,7 +2,7 @@
 {% block title %} Home {% endblock %}
 {% block content %}
     <div class="container">
-        <h3>Deine Reservierungen</h3>
+        <h3>Deine Reservierungen <a href="{{ url_for('deletereservation') }}">stornieren</a></h3>
         <table class="table">
             <tr class="bg-gradient">
                 <th>Reservierungs ID</th>
@@ -16,10 +16,10 @@
                         {{ reservierung.id }}
                     </td>
                     <td>
-                        {{ reservierung.date }}
+                        {{ reservierung.starttime }}
                     </td>
                     <td>
-                        {{ reservierung.time }}
+                        {{ reservierung.endtime }}
                     </td>
                     <td>
                         {{ reservierung.tableid }}
@@ -34,22 +34,27 @@
         <form method="POST">
             <div class="form-group">
                 <label for="capacity">Personenanzahl:</label>
-                <select name="capacity" id="capacity">
-                {% for tische in tischdaten %}
-                    <option>{{ tische.capacity }}</option>
-                {% endfor %}
-                </select>
+                <input type="number" class="form-control" id="capacity" name="capacity"
+                       placeholder="Personenanzahl festlegen" min="1" max="10">
             </div>
+            <!--
             <div class="form-group">
                 <label for="date">Datum:</label>
                 <input type="date" class="form-control" id="date" name="date"
                        placeholder="Datum auswählen">
             </div>
+            -->
             <div class="form-group">
-                <label for="time">Uhrzeit:</label>
-                <input type="time" class="form-control" id="time" name="time"
-                       placeholder="Uhrzeit auswählen">
+                <label for="starttime">Uhrzeit von: (Öffnungszeiten: Montag bis Sonntag 18 bis 0 Uhr)</label>
+                <input type="datetime-local" class="form-control" id="starttime" name="starttime"
+                       placeholder="Start-Uhrzeit auswählen" min="18:00" max="00:00">
             </div>
+            <div class="form-group">
+                <label for="endtime">Uhrzeit bis: (maximal 2 Stunden)</label>
+                <input type="datetime-local" class="form-control" id="endtime" name="endtime"
+                       placeholder="End-Uhrzeit auswählen" min="2022-12-01T18:00" max="2022-12-31T00:00">
+            </div>
+            <!--
             <div class="form-group">
                         <label for="dauer">Aufenthaltsdauer: </label>
                         <select name="dauer" id="dauer">
@@ -60,6 +65,7 @@
                         <option value="5">2 Stunden</option>
                         </select>
             </div>
+            -->
             <button type="submit" class="btn btn-primary">Tisch reservieren</button>
         </form>
     </div>
