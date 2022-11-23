@@ -131,17 +131,19 @@ def home():
         if start <= starttime.time() <= end and start <= endtime.time() <= end:
 
             cursor = g.con.cursor(buffered=True)
-            cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
+            cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` where %s '
+                           'between starttime and endtime',
                            (request.form["starttime"],))
             row3 = cursor.fetchone()
-            cursor.close()
-
-            cursor = g.con.cursor(buffered=True)
-            cursor.execute('SELECT starttime, endtime FROM `reservations` where %s between starttime and endtime',
+            cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` where %s '
+                           'between starttime and endtime',
                            (request.form["endtime"],))
             row4 = cursor.fetchone()
-            cursor.close()
-
+            cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` '
+                           'where starttime >= %s and endtime <= %s',
+                           (request.form["starttime"], request.form["endtime"]))
+            row5 = cursor.fetchone()
+            '''
             cursor = g.con.cursor(buffered=True)
             cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
                            (request.form["starttime"],))
@@ -154,8 +156,16 @@ def home():
             row6 = cursor.fetchone()
             cursor.close()
 
-            if (row3 is not None or row4 is not None) and \
-                    (row5 is not None and table_id == row5[0] or row6 is not None and table_id == row6[0]):
+            cursor = g.con.cursor(buffered=True)
+            cursor.execute('SELECT tableid FROM `reservations` where starttime >= %s and endtime <= %s',
+                           (request.form["starttime"], request.form["endtime"]))
+            row8 = cursor.fetchone()
+            '''
+            cursor.close()
+
+            if (row3 is not None or row4 is not None or row5 is not None) and \
+                    (row3 is not None and table_id == row3[2] or row4 is not None and table_id == row4[2]
+                     or row5 is not None and table_id == row5[2]):
                 flash("Kein Tisch mit dieser Kapazität ist zur ausgewählten Uhrzeit verfügbar.", category="error")
                 return redirect(url_for('home'))
 
