@@ -1,80 +1,96 @@
 {% extends 'layout.html' %}
 {% block title %} Home {% endblock %}
 {% block content %}
-    <div class="container">
-        <h1> Admin Bereich </h1>
-        <br>
+    <form method="POST" action="/deleteres">
+        <div class="container">
+            <h1> Admin Bereich </h1>
+            <br>
 
-        <h3>Reservierungen <a href="{{ url_for('deletereservation') }}">entfernen</a></h3>
-        <table class="table">
-            <tr class="bg-gradient">
-                <th>Reservierungs ID</th>
-                <th>Datum</th>
-                <th>Uhrzeit</th>
-                <th>Tisch ID</th>
-                <th>Nutzer ID</th>
-            </tr>
-            {% for reservierung in reservierungdaten %}
-                <tr>
-                    <td>
-                        {{ reservierung.id }}
-                    </td>
-                    <td>
-                        {{ reservierung.starttime }}
-                    </td>
-                    <td>
-                        {{ reservierung.endtime }}
-                    </td>
-                    <td>
-                        {{ reservierung.tableid }}
-                    </td>
-                    <td>
-                        {{ reservierung.userid }}
-                    </td>
+            <h3>Reservierungen <a href="{{ url_for('deletereservation') }}">entfernen</a></h3>
+            <table class="table">
+                <tr class="bg-gradient">
+                    <th>Reservierungs ID</th>
+                    <th>Datum</th>
+                    <th>Uhrzeit</th>
+                    <th>Tisch ID</th>
+                    <th>Nutzer ID</th>
+                    <th><input type="submit" value="Entfernen" class="btn btn-primary"></th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for reservierung in reservierungdaten %}
+                    <tr id="{{ reservierung.id }}">
+                        <td>
+                            {{ reservierung.id }}
+                        </td>
+                        <td>
+                            {{ reservierung.starttime }}
+                        </td>
+                        <td>
+                            {{ reservierung.endtime }}
+                        </td>
+                        <td>
+                            {{ reservierung.tableid }}
+                        </td>
+                        <td>
+                            {{ reservierung.userid }}
+                        </td>
+                        <td><input type="checkbox" name="checkbox" value="{{ reservierung.id }}" /></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </form>
 
-        <h3>Nutzerdaten <a href="{{ url_for('deleteuser') }}">entfernen</a></h3>
-        <table class="table">
-            <tr class="bg-gradient">
-                <th>Nutzer ID</th>
-                <th>Name</th>
-                <th>Email</th>
-            </tr>
-            {% for nutzer in nutzerdaten %}
-                <tr>
-                    <td>
-                        {{ nutzer.id }}
-                    </td>
-                    <td>
-                        {{ nutzer.name }}
-                    </td>
-                    <td>
-                        {{ nutzer.email }}
-                    </td>
+    <form method="POST" action="/deleteuser2">
+        <div class="container">
+            <h3>Nutzerdaten <a href="{{ url_for('deleteuser') }}">entfernen</a></h3>
+            <table class="table">
+                <tr class="bg-gradient">
+                    <th>Nutzer ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th><input type="submit" value="Entfernen" class="btn btn-primary"></th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for nutzer in nutzerdaten %}
+                    <tr id="{{ nutzer.id }}">
+                        <td>
+                            {{ nutzer.id }}
+                        </td>
+                        <td>
+                            {{ nutzer.name }}
+                        </td>
+                        <td>
+                            {{ nutzer.email }}
+                        </td>
+                        <td><input type="checkbox" name="checkbox" value="{{ nutzer.id }}" /></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </form>
 
-        <h3 >Tische <a href="{{ url_for('createtable') }}">anlegen</a> |
-            <a href="{{ url_for('deletetable') }}">entfernen</a></h3>
-        <table class="table">
-            <tr class="bg-gradient">
-                <th>Tisch ID</th>
-                <th>Kapazität</th>
-            </tr>
-            {% for tische in tischdaten %}
-                <tr>
-                    <td>
-                        {{ tische.id }}
-                    </td>
-                    <td>
-                        {{ tische.capacity }}
-                    </td>
+    <form method="POST" action="/deletetable2">
+        <div class="container">
+            <h3 >Tische <a href="{{ url_for('createtable') }}">anlegen</a> |
+                <a href="{{ url_for('deletetable') }}">entfernen</a></h3>
+            <table class="table">
+                <tr class="bg-gradient">
+                    <th>Tisch ID</th>
+                    <th>Kapazität</th>
+                    <th><input type="submit" value="Entfernen" class="btn btn-primary"></th>
                 </tr>
-            {% endfor %}
-        </table>
-    </div>
+                {% for tische in tischdaten %}
+                    <tr id="{{ tische.id }}">
+                        <td>
+                            {{ tische.id }}
+                        </td>
+                        <td>
+                            {{ tische.capacity }}
+                        </td>
+                        <td><input type="checkbox" name="checkbox" value="{{ tische.id }}" /></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </form>
 
 {% endblock %}

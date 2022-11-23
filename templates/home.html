@@ -1,33 +1,37 @@
 {% extends 'layout.html' %}
 {% block title %} Home {% endblock %}
 {% block content %}
-    <div class="container">
-        <h3>Deine Reservierungen <a href="{{ url_for('deletereservation') }}">stornieren</a></h3>
-        <table class="table">
-            <tr class="bg-gradient">
-                <th>Reservierungs ID</th>
-                <th>Datum</th>
-                <th>Zeit</th>
-                <th>Tisch ID</th>
-            </tr>
-            {% for reservierung in reservierungdaten %}
-                <tr>
-                    <td>
-                        {{ reservierung.id }}
-                    </td>
-                    <td>
-                        {{ reservierung.starttime }}
-                    </td>
-                    <td>
-                        {{ reservierung.endtime }}
-                    </td>
-                    <td>
-                        {{ reservierung.tableid }}
-                    </td>
+    <form method="POST" action="/deleteres">
+        <div class="container">
+            <h3>Deine Reservierungen <a href="{{ url_for('deletereservation') }}">stornieren</a></h3>
+            <table class="table">
+                <tr class="bg-gradient">
+                    <th>Reservierungs ID</th>
+                    <th>Datum</th>
+                    <th>Zeit</th>
+                    <th>Tisch ID</th>
+                    <th><input type="submit" value="Stornieren" class="btn btn-primary"></th>
                 </tr>
-            {% endfor %}
-        </table>
-    </div>
+                {% for reservierung in reservierungdaten %}
+                    <tr id="{{ reservierung.id }}">
+                        <td>
+                            {{ reservierung.id }}
+                        </td>
+                        <td>
+                            {{ reservierung.starttime }}
+                        </td>
+                        <td>
+                            {{ reservierung.endtime }}
+                        </td>
+                        <td>
+                            {{ reservierung.tableid }}
+                        </td>
+                        <td><input type="checkbox" name="checkbox" value="{{ reservierung.id }}" /></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </form>
 
     <div class="container">
         <h2>Reservierung hinzufügen</h2>

@@ -176,6 +176,7 @@ def home():
             g.con.commit()
             cursor.close()
             flash("Reservierung erfolgreich!")
+            return redirect(url_for('home'))
         else:
             flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
     return render_template('home.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten,
@@ -414,6 +415,42 @@ def deletereservation():
         cursor.close()
         flash("Reservierung gelöscht")
     return render_template('deletereservation.html')
+
+@app.route('/deleteres', methods=['GET','POST'])
+def deleteres():
+    cursor = g.con.cursor()
+    if request.method == 'POST':
+        for getid in request.form.getlist('checkbox'):
+            cursor.execute("DELETE FROM `reservations` WHERE id=%s", (getid,))
+            g.con.commit()
+        cursor.close()
+        flash("Reservierung gelöscht")
+        return redirect(url_for('home'))
+    return render_template('home.html')
+
+@app.route('/deleteuser2', methods=['GET','POST'])
+def deleteuser2():
+    cursor = g.con.cursor()
+    if request.method == 'POST':
+        for getid in request.form.getlist('checkbox'):
+            cursor.execute("DELETE FROM `users` WHERE id=%s", (getid,))
+            g.con.commit()
+        cursor.close()
+        flash("Nutzer gelöscht")
+        return redirect(url_for('admin'))
+    return render_template('admin.html')
+
+@app.route('/deletetable2', methods=['GET','POST'])
+def tisch2():
+    cursor = g.con.cursor()
+    if request.method == 'POST':
+        for getid in request.form.getlist('checkbox'):
+            cursor.execute("DELETE FROM `table` WHERE id=%s", (getid,))
+            g.con.commit()
+        cursor.close()
+        flash("Tisch gelöscht")
+        return redirect(url_for('admin'))
+    return render_template('admin.html')
 
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
