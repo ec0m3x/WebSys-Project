@@ -6,6 +6,7 @@
             <tr class="bg-gradient">
                 <th>Name</th>
                 <th>E-Mail</th>
+                <th>Admin</th>
             </tr>
             {% for nutzer in nutzerdaten %}
                 <tr>
@@ -14,6 +15,9 @@
                     </td>
                     <td>
                         {{ nutzer.email }}
+                    </td>
+                    <td>
+                        {{ nutzer.adminflag }}
                     </td>
                 </tr>
             {% endfor %}

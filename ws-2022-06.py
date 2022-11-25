@@ -33,6 +33,23 @@ def login_required(logged_in):
     return check_login
 
 
+def admin_required(logged_in):
+    """ Definiere View Decorator login_required """
+
+    @wraps(logged_in)
+    def check_login(*args, **kwargs):
+        """ Überprüft, ob Nutzer eingeloggt ist """
+        if session.get("admin") == 1:
+            # Nutzername ist in Session, Nutzer ist eingeloggt
+            return logged_in(*args, **kwargs)
+
+        # Weiterleitung zur Login Seite
+        flash("Bitte einloggen!", category="error")
+        return redirect(url_for("login"))
+
+    return check_login
+
+
 @app.before_request
 def before_request():
     """ Verbindung zur Datenbank herstellen """
@@ -55,7 +72,7 @@ def index():
 
 @app.route('/admin')
 # Admin Bereich
-@login_required
+@admin_required
 def admin():
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, starttime, endtime, tableid, userid FROM reservations', )
@@ -116,7 +133,7 @@ def home():
 
         '''2 Stunden Dauer nicht überschreiten'''
         starttime = datetime.strptime(request.form["starttime"], '%Y-%m-%dT%H:%M')
-        endtime= datetime.strptime(request.form["endtime"], '%Y-%m-%dT%H:%M')
+        endtime = datetime.strptime(request.form["endtime"], '%Y-%m-%dT%H:%M')
         diff = endtime - starttime
         sec = diff.total_seconds()
         hours = sec / (60 * 60)
@@ -189,19 +206,29 @@ def login():
 
     if request.method == 'POST':
         cursor = g.con.cursor()
-        cursor.execute('SELECT password FROM users where name = %s', (request.form["username"],))
-        row = cursor.fetchone()
+        cursor.execute('SELECT password,adminflag FROM users where name = %s', (request.form["username"],))
+        row = cursor.fetchall()
+        print(row)
+        print(row[0][0])
         cursor.close()
 
         if row is None:
             flash("Nutzername existiert nicht!", category="error")
             return redirect(url_for('login'))
 
-        pw_from_db = row[0]
+        pw_from_db = row[0][0]
+        adminflag = row[0][1]
         if check_password_hash(pwhash=pw_from_db, password=request.form["password"]):
             # Speichern des Usernamens in der Session
-            session['username'] = request.form['username']
-            flash("Eingeloggt!")
+            if adminflag == 1:
+                flash("Admin eingeloggt")
+                session['username'] = request.form['username']
+                session['admin'] = 1
+            else:
+                session['username'] = request.form['username']
+                session['admin'] = 0
+                flash("Eingeloggt!")
+
             return redirect(url_for('home'))
 
         flash("Passwort nicht korrekt!", category="error")
@@ -236,7 +263,7 @@ def sign_up():
             password = generate_password_hash(password=request.form['password1'])
 
             cursor = g.con.cursor()
-            cursor.execute('INSERT INTO users (name, email, password) VALUES (%s, %s, %s)',
+            cursor.execute('INSERT INTO users (name, email, password, adminflag) VALUES (%s, %s, %s, false)',
                            (request.form['username'], request.form['email'], password,))
             g.con.commit()
             cursor.close()
@@ -273,11 +300,12 @@ def createtable():
 
         cursor = g.con.cursor()
         cursor.execute('INSERT INTO `table` (id, capacity) VALUES (%s, %s)',
-                       (request.form['id'],request.form['capacity'],))
+                       (request.form['id'], request.form['capacity'],))
         g.con.commit()
         cursor.close()
         flash('Tisch angelegt.')
     return render_template('createtable.html')
+
 
 @app.route('/deletetable', methods=['GET', 'POST'])
 @login_required
@@ -339,6 +367,7 @@ def userdata():
     cursor.close()
     return render_template('userdata.html', htmldaten=daten)
 
+
 @app.route('/changepassword', methods=['GET', 'POST'])
 @login_required
 def changepassword():
@@ -370,7 +399,8 @@ def changepassword():
         return redirect(url_for('home'))
     return render_template('changepassword.html')
 
-@app.route('/deleteuser', methods=['GET','POST'])
+
+@app.route('/deleteuser', methods=['GET', 'POST'])
 def deleteuser():
     if request.method == 'POST':
         cursor = g.con.cursor()
@@ -397,7 +427,8 @@ def deleteuser():
         flash("Zuerst Reservierung des Nutzers aufheben!", category="error")
     return render_template('deleteuser.html')
 
-@app.route('/deletereservation', methods=['GET','POST'])
+
+@app.route('/deletereservation', methods=['GET', 'POST'])
 def deletereservation():
     if request.method == 'POST':
         cursor = g.con.cursor()
@@ -416,7 +447,8 @@ def deletereservation():
         flash("Reservierung gelöscht")
     return render_template('deletereservation.html')
 
-@app.route('/deleteres', methods=['GET','POST'])
+
+@app.route('/deleteres', methods=['GET', 'POST'])
 def deleteres():
     cursor = g.con.cursor()
     if request.method == 'POST':
@@ -428,7 +460,8 @@ def deleteres():
         return redirect(url_for('home'))
     return render_template('home.html')
 
-@app.route('/deleteuser2', methods=['GET','POST'])
+
+@app.route('/deleteuser2', methods=['GET', 'POST'])
 def deleteuser2():
     cursor = g.con.cursor()
     if request.method == 'POST':
@@ -440,7 +473,8 @@ def deleteuser2():
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
-@app.route('/deletetable2', methods=['GET','POST'])
+
+@app.route('/deletetable2', methods=['GET', 'POST'])
 def tisch2():
     cursor = g.con.cursor()
     if request.method == 'POST':
@@ -452,14 +486,14 @@ def tisch2():
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
+
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    cursor = g.con.cursor()
-    cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
-    row = cursor.fetchone()
-    user_id = row[0]
-    cursor.close()
+    """cursor = g.con.cursor()
+        cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
+        row = cursor.fetchone()
+        cursor.close()"""
 
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
@@ -467,6 +501,7 @@ def account():
     cursor.close()
 
     return render_template('account.html', nutzerdaten=nutzerdaten)
+
 
 @app.route('/baljabkin')
 def seite_baljabkin():
@@ -476,4 +511,3 @@ def seite_baljabkin():
 # Start der Flask-Anwendung
 if __name__ == '__main__':
     app.run(debug=True)
-
