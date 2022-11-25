@@ -44,7 +44,7 @@ def admin_required(logged_in):
             return logged_in(*args, **kwargs)
 
         # Weiterleitung zur Login Seite
-        flash("Bitte einloggen!", category="error")
+        flash("Du bist nicht als Admin angemeldet! Bitte einloggen!", category="error")
         return redirect(url_for("login"))
 
     return check_login
@@ -224,13 +224,12 @@ def login():
                 flash("Admin eingeloggt")
                 session['username'] = request.form['username']
                 session['admin'] = 1
+                return redirect(url_for('admin'))
             else:
                 session['username'] = request.form['username']
                 session['admin'] = 0
                 flash("Eingeloggt!")
-
-            return redirect(url_for('home'))
-
+                return redirect(url_for('home'))
         flash("Passwort nicht korrekt!", category="error")
     return render_template("login.html")
 
