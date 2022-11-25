@@ -33,7 +33,7 @@
                         <td>
                             {{ reservierung.userid }}
                         </td>
-                        <td><input type="checkbox" name="checkbox" value="{{ reservierung.id }}" /></td>
+                        <td><input type="checkbox" name="checkbox" value="{{ reservierung.id }}"/></td>
                     </tr>
                 {% endfor %}
             </table>
@@ -61,7 +61,7 @@
                         <td>
                             {{ nutzer.email }}
                         </td>
-                        <td><input type="checkbox" name="checkbox" value="{{ nutzer.id }}" /></td>
+                        <td><input type="checkbox" name="checkbox" value="{{ nutzer.id }}"/></td>
                     </tr>
                 {% endfor %}
             </table>
@@ -70,7 +70,7 @@
 
     <form method="POST" action="/deletetable2">
         <div class="container">
-            <h3 >Tische <a href="{{ url_for('createtable') }}">anlegen</a> |
+            <h3>Tische <a href="{{ url_for('createtable') }}">anlegen</a> |
                 <a href="{{ url_for('deletetable') }}">entfernen</a></h3>
             <table class="table">
                 <tr class="bg-gradient">
@@ -86,7 +86,7 @@
                         <td>
                             {{ tische.capacity }}
                         </td>
-                        <td><input type="checkbox" name="checkbox" value="{{ tische.id }}" /></td>
+                        <td><input type="checkbox" name="checkbox" value="{{ tische.id }}"/></td>
                     </tr>
                 {% endfor %}
             </table>
