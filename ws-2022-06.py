@@ -382,8 +382,12 @@ def changepassword():
         row2 = cursor.fetchone()
         cursor.close()
         pw_from_db = row2[0]
+
         if check_password_hash(pwhash=pw_from_db, password=request.form["oldpassword"]):
             if request.form['newpassword1'] == request.form['newpassword2']:
+                if check_password_hash(pwhash=pw_from_db, password=request.form["newpassword1"]):
+                    flash("Neues Passwort darf nicht mit altem Passwort übereinstimmen", category="error")
+                    return redirect(url_for('changepassword'))
                 newpassword1 = generate_password_hash(password=request.form['newpassword1'])
                 cursor = g.con.cursor()
                 cursor.execute("UPDATE `users` SET password=%s WHERE id=%s",
@@ -397,8 +401,6 @@ def changepassword():
         flash("Altes Passwort nicht korrekt", category="error")
         return redirect(url_for('home'))
     return render_template('changepassword.html')
-
-
 @app.route('/deleteuser', methods=['GET', 'POST'])
 def deleteuser():
     if request.method == 'POST':
