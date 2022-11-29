@@ -290,16 +290,8 @@ def about_us():
 def createtable():
     if request.method == 'POST':
         cursor = g.con.cursor()
-        cursor.execute('SELECT id, capacity FROM `table` where id = %s', (request.form["id"],))
-        row = cursor.fetchone()
-        cursor.close()
-        if row is not None:
-            flash("Tisch bereits hinzugefügt", category="error")
-            return redirect(url_for('createtable'))
-
-        cursor = g.con.cursor()
-        cursor.execute('INSERT INTO `table` (id, capacity) VALUES (%s, %s)',
-                       (request.form['id'], request.form['capacity'],))
+        cursor.execute('INSERT INTO `table` (capacity) VALUES (%s)',
+                       (request.form['capacity'],))
         g.con.commit()
         cursor.close()
         flash('Tisch angelegt.')
