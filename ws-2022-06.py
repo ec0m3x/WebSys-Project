@@ -57,7 +57,7 @@ def before_request():
 
 
 @app.teardown_request
-def teardown_request():  # pylint: disable=unused-argument
+def teardown_request(exception):  # pylint: disable=unused-argument
     """ Verbindung zur Datenbank trennen """
     con = getattr(g, 'con', None)
     if con is not None:
