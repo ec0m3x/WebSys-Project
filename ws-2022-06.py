@@ -34,7 +34,7 @@ def login_required(logged_in):
 
 
 def admin_required(logged_in):
-    """ Definiere View Decorator login_required """
+    """ Definiere View Decorator admin_required """
 
     @wraps(logged_in)
     def check_login(*args, **kwargs):
@@ -273,7 +273,7 @@ def sign_up():
 @app.route('/logout')
 @login_required
 def logout():
-    session.pop('username', None)
+    session.clear()
     flash("Erfolgreich ausgeloggt!")
     return redirect(url_for('index'))
 
