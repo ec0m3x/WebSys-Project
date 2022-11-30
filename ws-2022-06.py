@@ -13,7 +13,7 @@ import mysql.connector
 from db.db_credentials import DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE
 
 app = Flask(__name__)
-app.secret_key = 'la web de la sys'
+app.secret_key = 'irgendwas'
 
 
 def login_required(logged_in):
