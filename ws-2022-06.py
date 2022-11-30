@@ -208,8 +208,6 @@ def login():
         cursor = g.con.cursor()
         cursor.execute('SELECT password,adminflag FROM users where name = %s', (request.form["username"],))
         row = cursor.fetchall()
-        print(row)
-        print(row[0][0])
         cursor.close()
 
         if row is None:
