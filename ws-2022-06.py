@@ -57,7 +57,7 @@ def before_request():
 
 
 @app.teardown_request
-def teardown_request(exception):  # pylint: disable=unused-argument
+def teardown_request():  # pylint: disable=unused-argument
     """ Verbindung zur Datenbank trennen """
     con = getattr(g, 'con', None)
     if con is not None:
@@ -393,6 +393,8 @@ def changepassword():
         flash("Altes Passwort nicht korrekt", category="error")
         return redirect(url_for('home'))
     return render_template('changepassword.html')
+
+
 @app.route('/deleteuser', methods=['GET', 'POST'])
 def deleteuser():
     if request.method == 'POST':
