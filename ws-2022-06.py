@@ -373,8 +373,8 @@ def changepassword():
 
 
 
-@app.route('/changereservation', methods=['GET', 'POST'])
-def changereservation():
+@app.route('/changereservation/<myid>', methods=['GET', 'POST'])
+def changereservation(myid):
     cursor = g.con.cursor()
     cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
     row = cursor.fetchone()
@@ -382,15 +382,17 @@ def changereservation():
     cursor.close()
 
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, capacity, starttime, endtime, tableid FROM `reservations` where userid = %s', (user_id,))
+    cursor.execute('SELECT id, capacity, starttime, endtime, tableid FROM `reservations` where id = %s', (myid,))
     daten = cursor.fetchone()
-    reservationid = daten['id']
-    mytable = daten['tableid']
     cursor.close()
+    mycapacity = daten['capacity']
+    mystarttime = daten['starttime']
+    myendtime = daten['endtime']
+    mytable = daten['tableid']
 
     if request.method == "POST":
         cursor = g.con.cursor()
-        cursor.execute('DELETE FROM `reservations` WHERE id=%s', (reservationid,))
+        cursor.execute('DELETE FROM `reservations` WHERE id=%s', (myid,))
         cursor.close()
 
         cursor = g.con.cursor(buffered=True)
@@ -437,6 +439,11 @@ def changereservation():
             if (row3 is not None or row4 is not None or row5 is not None) and \
                     (row3 is not None and table_id == row3[2] or row4 is not None and table_id == row4[2]
                      or row5 is not None and table_id == row5[2]):
+                cursor = g.con.cursor()
+                cursor.execute('INSERT INTO `reservations` (capacity, starttime, endtime, tableid, userid) VALUES '
+                           '(%s, %s, %s, %s, %s)',
+                           (mycapacity, mystarttime, myendtime, mytable, user_id))
+                cursor.close()
                 flash("Kein Tisch mit dieser Kapazität ist zur ausgewählten Uhrzeit verfügbar.", category="error")
                 return redirect(url_for('home'))
 

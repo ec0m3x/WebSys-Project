@@ -36,7 +36,7 @@
                             <input type="checkbox" name="checkbox" value="{{ reservierung.id }}"/>
                         </td>
                         <td>
-                            <a href="{{ url_for('changereservation') }}">Bearbeiten</a>
+                            <a href="{{ url_for('changereservation', myid=reservierung.id) }}">Bearbeiten</a>
                         </td>
                     </tr>
                 {% endfor %}
