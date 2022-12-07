@@ -449,11 +449,75 @@ def changereservation():
     cursor.close()
 
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT capacity, starttime, endtime FROM `reservations` where userid = %s', (user_id,))
-    reservierungdaten = cursor.fetchall()
+    cursor.execute('SELECT id, capacity, starttime, endtime, tableid FROM `reservations` where userid = %s', (user_id,))
+    daten = cursor.fetchone()
+    reservationid = daten['id']
+    mytable = daten['tableid']
     cursor.close()
 
-    return render_template('changereservation.html', reservierungdaten=reservierungdaten)
+    if request.method == "POST":
+        cursor = g.con.cursor()
+        cursor.execute('DELETE FROM `reservations` WHERE id=%s', (reservationid,))
+        cursor.close()
+
+        cursor = g.con.cursor(buffered=True)
+        cursor.execute('SELECT id FROM `table` where capacity >= %s', (request.form["capacity"],))
+        row2 = cursor.fetchone()
+        cursor.close()
+        if row2 is None:
+            flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
+            return redirect(url_for('home'))
+        table_id = row2[0]
+
+        '''2 Stunden Dauer nicht überschreiten'''
+        starttime = datetime.strptime(request.form["starttime"], '%Y-%m-%dT%H:%M')
+        endtime = datetime.strptime(request.form["endtime"], '%Y-%m-%dT%H:%M')
+        diff = endtime - starttime
+        sec = diff.total_seconds()
+        hours = sec / (60 * 60)
+
+        if hours > 2:
+            flash("Dauer der Reservierung darf 2 Stunden nicht überschreiten!", category="error")
+            return redirect(url_for('home'))
+
+        '''Überprüfen ob im Öffnungszeiten-Rahmen'''
+        start = time(18, 0)
+        end = time(23, 59)
+        if start <= starttime.time() <= end and start <= endtime.time() <= end:
+
+            cursor = g.con.cursor(buffered=True)
+            '''Nimmt alle Reservierungen wo die Startzeit zwischen einer anderen Reservierung liegt '''
+            cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` where %s '
+                           'between starttime and endtime',
+                           (request.form["starttime"],))
+            row3 = cursor.fetchone()
+            cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` where %s '
+                           'between starttime and endtime',
+                           (request.form["endtime"],))
+            row4 = cursor.fetchone()
+            cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` '
+                           'where starttime >= %s and endtime <= %s',
+                           (request.form["starttime"], request.form["endtime"]))
+            row5 = cursor.fetchone()
+            cursor.close()
+
+            if (row3 is not None or row4 is not None or row5 is not None) and \
+                    (row3 is not None and table_id == row3[2] or row4 is not None and table_id == row4[2]
+                     or row5 is not None and table_id == row5[2]):
+                flash("Kein Tisch mit dieser Kapazität ist zur ausgewählten Uhrzeit verfügbar.", category="error")
+                return redirect(url_for('home'))
+
+            cursor = g.con.cursor()
+            cursor.execute('INSERT INTO `reservations` (capacity, starttime, endtime, tableid, userid) VALUES '
+                           '(%s, %s, %s, %s, %s)',
+                           (request.form['capacity'], request.form['starttime'], request.form['endtime'], table_id, user_id,))
+            g.con.commit()
+            cursor.close()
+            flash("Reservierung erfolgreich geändert!")
+            return redirect(url_for('home'))
+        else:
+            flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
+    return render_template('changereservation.html', daten=daten)
 
 @app.route('/deleteres', methods=['GET', 'POST'])
 def deleteres():

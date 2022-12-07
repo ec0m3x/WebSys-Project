@@ -6,7 +6,7 @@
             <h1> Admin Bereich </h1>
             <br>
 
-            <h3>Reservierungen <a href="{{ url_for('deletereservation') }}">entfernen</a></h3>
+            <h3>Reservierungen</h3>
             <table class="table">
                 <tr class="bg-gradient">
                     <th>Reservierungs ID</th>
@@ -46,7 +46,7 @@
 
     <form method="POST" action="/deleteuser2">
         <div class="container">
-            <h3>Nutzerdaten <a href="{{ url_for('deleteuser') }}">entfernen</a></h3>
+            <h3>Nutzerdaten</h3>
             <table class="table">
                 <tr class="bg-gradient">
                     <th>Nutzer ID</th>
@@ -74,8 +74,7 @@
 
     <form method="POST" action="/deletetable2">
         <div class="container">
-            <h3>Tische <a href="{{ url_for('createtable') }}">anlegen</a> |
-                <a href="{{ url_for('deletetable') }}">entfernen</a></h3>
+            <h3>Tische <a href="{{ url_for('createtable') }}">anlegen</a></h3>
             <table class="table">
                 <tr class="bg-gradient">
                     <th>Tisch ID</th>
