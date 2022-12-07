@@ -7,10 +7,12 @@
             <table class="table">
                 <tr class="bg-gradient">
                     <th>Reservierungs ID</th>
-                    <th>Datum</th>
-                    <th>Zeit</th>
+                    <th>Startzeit</th>
+                    <th>Endzeit</th>
+                    <th>Personenanzahl</th>
                     <th>Tisch ID</th>
                     <th><input type="submit" value="Stornieren" class="btn btn-primary"></th>
+                    <th></th>
                 </tr>
                 {% for reservierung in reservierungdaten %}
                     <tr id="{{ reservierung.id }}">
@@ -24,9 +26,18 @@
                             {{ reservierung.endtime }}
                         </td>
                         <td>
+                            {{ reservierung.capacity }}
+                        </td>
+                        <td>
                             {{ reservierung.tableid }}
                         </td>
-                        <td><input type="checkbox" name="checkbox" value="{{ reservierung.id }}"/></td>
+
+                        <td>
+                            <input type="checkbox" name="checkbox" value="{{ reservierung.id }}"/>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('changereservation') }}">Bearbeiten</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -39,7 +50,7 @@
             <div class="form-group">
                 <label for="capacity">Personenanzahl:</label>
                 <input type="number" class="form-control" id="capacity" name="capacity"
-                       placeholder="Personenanzahl festlegen" min="1" max="10">
+                       placeholder="Personenanzahl festlegen" min="1" max="20">
             </div>
             <!--
             <div class="form-group">

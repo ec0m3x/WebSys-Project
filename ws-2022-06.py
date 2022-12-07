@@ -75,7 +75,7 @@ def index():
 @admin_required
 def admin():
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, starttime, endtime, tableid, userid FROM reservations', )
+    cursor.execute('SELECT id, capacity, starttime, endtime, tableid, userid FROM reservations', )
     reservierungdaten = cursor.fetchall()
     cursor.close()
 
@@ -106,7 +106,7 @@ def home():
     cursor.close()
 
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, starttime, endtime, tableid FROM `reservations` where userid = %s', (user_id,))
+    cursor.execute('SELECT id, capacity, starttime, endtime, tableid FROM `reservations` where userid = %s', (user_id,))
     reservierungdaten = cursor.fetchall()
     cursor.close()
 
@@ -187,9 +187,9 @@ def home():
                 return redirect(url_for('home'))
 
             cursor = g.con.cursor()
-            cursor.execute('INSERT INTO `reservations` (starttime, endtime, tableid, userid) VALUES '
-                           '(%s, %s, %s, %s)',
-                           (request.form['starttime'], request.form['endtime'], table_id, user_id,))
+            cursor.execute('INSERT INTO `reservations` (capacity, starttime, endtime, tableid, userid) VALUES '
+                           '(%s, %s, %s, %s, %s)',
+                           (request.form['capacity'], request.form['starttime'], request.form['endtime'], table_id, user_id,))
             g.con.commit()
             cursor.close()
             flash("Reservierung erfolgreich!")
@@ -440,6 +440,20 @@ def deletereservation():
         flash("Reservierung gelöscht")
     return render_template('deletereservation.html')
 
+@app.route('/changereservation', methods=['GET', 'POST'])
+def changereservation():
+    cursor = g.con.cursor()
+    cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
+    row = cursor.fetchone()
+    user_id = row[0]
+    cursor.close()
+
+    cursor = g.con.cursor(dictionary=True)
+    cursor.execute('SELECT capacity, starttime, endtime FROM `reservations` where userid = %s', (user_id,))
+    reservierungdaten = cursor.fetchall()
+    cursor.close()
+
+    return render_template('changereservation.html', reservierungdaten=reservierungdaten)
 
 @app.route('/deleteres', methods=['GET', 'POST'])
 def deleteres():

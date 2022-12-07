@@ -10,8 +10,9 @@
             <table class="table">
                 <tr class="bg-gradient">
                     <th>Reservierungs ID</th>
-                    <th>Datum</th>
-                    <th>Uhrzeit</th>
+                    <th>Startzeit</th>
+                    <th>Endzeit</th>
+                    <th>Personenanzahl</th>
                     <th>Tisch ID</th>
                     <th>Nutzer ID</th>
                     <th><input type="submit" value="Entfernen" class="btn btn-primary"></th>
@@ -26,6 +27,9 @@
                         </td>
                         <td>
                             {{ reservierung.endtime }}
+                        </td>
+                        <td>
+                            {{ reservierung.capacity }}
                         </td>
                         <td>
                             {{ reservierung.tableid }}

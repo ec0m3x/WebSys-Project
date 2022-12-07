@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+    <div class="container">
+        <h2>Reservierung bearbeiten</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="capacity">Personenanzahl:</label>
+                <input type="number" class="form-control" id="capacity" name="capacity"
+                       value="{{ reservierungdaten.capacity }}" min="1" max="20"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="starttime">Startzeit:</label>
+                <input type="datetime-local" class="form-control" id="starttime" name="starttime"
+                       value="{{ reservierungdaten.starttime }}" min="18:00" max="00:00"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="endtime">Endzeit:</label>
+                <input type="datetime-local" class="form-control" id="endtime" name="endtime"
+                       value="{{ reservierungdaten.endtime }}" min="18:00" max="00:00"
+                       required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Ändern</button>
+        </form>
+    </div>
+
+{% endblock %}
