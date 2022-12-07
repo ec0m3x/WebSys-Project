@@ -296,27 +296,6 @@ def createtable():
     return render_template('createtable.html')
 
 
-@app.route('/deletetable', methods=['GET', 'POST'])
-@login_required
-def deletetable():
-    if request.method == 'POST':
-        cursor = g.con.cursor()
-        cursor.execute('SELECT id FROM `table` where id = %s', (request.form["id"],))
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row is None:
-            flash("Tisch existiert nicht!", category="error")
-            return redirect(url_for('deletetable'))
-
-        cursor = g.con.cursor()
-        cursor.execute("DELETE FROM `table` WHERE id=%s", (request.form['id'],))
-        g.con.commit()
-        cursor.close()
-        flash("Tisch gelöscht")
-    return render_template('admin.html')
-
-
 @app.route('/userdata', methods=['GET', 'POST'])
 @login_required
 def userdata():
@@ -393,52 +372,6 @@ def changepassword():
     return render_template('changepassword.html')
 
 
-@app.route('/deleteuser', methods=['GET', 'POST'])
-def deleteuser():
-    if request.method == 'POST':
-        cursor = g.con.cursor()
-        cursor.execute('SELECT id FROM `users` where id = %s', (request.form["id"],))
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row is None:
-            flash("Nutzer existiert nicht!", category="error")
-            return redirect(url_for('deleteuser'))
-
-        cursor = g.con.cursor()
-        cursor.execute('SELECT userid FROM `reservations` where userid = %s', (request.form["id"],))
-        row2 = cursor.fetchone()
-        cursor.close()
-
-        if row2 is None:
-            cursor = g.con.cursor()
-            cursor.execute("DELETE FROM `users` WHERE id=%s", (request.form['id'],))
-            g.con.commit()
-            cursor.close()
-            flash("Nutzer entfernt")
-            return redirect(url_for('admin'))
-        flash("Zuerst Reservierung des Nutzers aufheben!", category="error")
-    return render_template('deleteuser.html')
-
-
-@app.route('/deletereservation', methods=['GET', 'POST'])
-def deletereservation():
-    if request.method == 'POST':
-        cursor = g.con.cursor()
-        cursor.execute('SELECT id FROM `reservations` where id = %s', (request.form["id"],))
-        row = cursor.fetchone()
-        cursor.close()
-
-        if row is None:
-            flash("Reservierung existiert nicht!", category="error")
-            return redirect(url_for('deletereservation'))
-
-        cursor = g.con.cursor()
-        cursor.execute("DELETE FROM `reservations` WHERE id=%s", (request.form['id'],))
-        g.con.commit()
-        cursor.close()
-        flash("Reservierung gelöscht")
-    return render_template('deletereservation.html')
 
 @app.route('/changereservation', methods=['GET', 'POST'])
 def changereservation():
@@ -532,8 +465,8 @@ def deleteres():
     return render_template('home.html')
 
 
-@app.route('/deleteuser2', methods=['GET', 'POST'])
-def deleteuser2():
+@app.route('/deleteuser', methods=['GET', 'POST'])
+def deleteuser():
     cursor = g.con.cursor()
     if request.method == 'POST':
         for getid in request.form.getlist('checkbox'):
@@ -545,8 +478,8 @@ def deleteuser2():
     return render_template('admin.html')
 
 
-@app.route('/deletetable2', methods=['GET', 'POST'])
-def tisch2():
+@app.route('/deletetable', methods=['GET', 'POST'])
+def deletetable():
     cursor = g.con.cursor()
     if request.method == 'POST':
         for getid in request.form.getlist('checkbox'):
