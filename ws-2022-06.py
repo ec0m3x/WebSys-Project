@@ -513,6 +513,11 @@ def account():
 
     return render_template('account.html', nutzerdaten=nutzerdaten)
 
+@app.route('/help', methods=['GET', 'POST'])
+def help():
+
+    return render_template('help.html')
+
 
 # Start der Flask-Anwendung
 if __name__ == '__main__':

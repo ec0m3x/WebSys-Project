@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+    <div class="container">
+        <h2>Hilfe</h2>
+        <h3>Mein Konto</h3>
+        <div class="form-group">
+            <b>Wie kann ich mich einloggen?</b>
+            <p>Auf unserer Seite oben rechts auf <a href="/login">"Anmelden"</a> klicken und Ihren Benutzernamen und
+                Ihr Passwort eingeben.</p>
+            <b>Wie kann ich mich registrieren?</b>
+            <p>Auf unserer Seite oben rechts auf <a href="/sign-up">"Registrieren"</a> klicken und
+                Ihren Namen, Ihre E-Mail Adresse und Ihr Passwort eingeben.</p>
+            <b>Wo kann ich meine Kundendaten einsehen?</b>
+            <p>Nach der Anmeldung auf unserer Seite oben rechts unter <a href="/account">"Konto"</a> können
+                Sie Ihre Kundendaten einsehen..</p>
+            <b>Wie kann ich meine Nutzerdaten ändern?</b>
+            <p>Nach der Anmeldung auf unserer Seite oben rechts unter <a href="/account">"Konto"</a> auf
+                <a href="/userdata">"bearbeiten"</a> klicken und die Nutzerdaten bearbeiten.</p>
+            <b>Wie kann ich mein Passwort ändern?</b>
+            <p>Nach der Anmeldung auf unserer Seite oben rechts unter <a href="/account">"Konto"</a> auf
+                <a href="/changepassword">"Passwort ändern"</a> klicken und das Passwort ändern.</p>
+            <b>Wie kann ich mein Konto löschen?</b>
+            <p>Sie können Ihr Kundenkonto bei uns aktuell nicht löschen.</p>
+        </div>
+        <br>
+        <h3>Meine Reservierungen</h3>
+        <div class="form-group">
+            <b>Wie kann ich eine Reservierung tätigen?</b>
+            <p>Nach der Anmeldung auf unserer Seite oben links auf <a href="/home">"Deine Reservierungen"</a> klicken;
+                <br>Personenanzahl, Startdatum & -uhrzeit, sowie Enddatum & -uhrzeit festlegen und auf
+                "Tisch reservieren" klicken</p>
+            <b>Wo kann ich meine Reservierungen einsehen?</b>
+            <p>Nach der Anmeldung auf unserer Seite oben links auf <a href="/home">"Deine Reservierungen"</a> klicken
+                und getätigte Reservierungen einsehen.</p>
+            <b>Wie kann ich meine Reservierung bearbeiten?</b>
+            <p>Nach der Anmeldung auf unserer Seite oben links auf <a href="/home">"Deine Reservierungen"</a> klicken
+                und bei der zu bearbeitenden Reservierung links auf "Bearbeiten" klicken.</p>
+            <b>Wie kann ich meine Reservierung löschen?</b>
+            <p>Nach der Anmeldung auf unserer Seite oben links auf <a href="/home">"Deine Reservierungen"</a> klicken
+                und zu entfernende Reservierungen in den Checkboxen auswählen und auf "Stornieren" klicken.</p>
+            <b>Kann ich mehrere Reservierungen tätigen?</b>
+            <p>Ja, Sie können bei uns beliebig viele Reservierungen tätigen.</p>
+            </div>
+        <br>
+        <h3>La Web de la Sys</h3>
+        <div class="form-group">
+            <b>Wie lange haben wir geöffnet?</b>
+            <p>Unser Restaurant hat täglich Montag bis Sonntag von 18 Uhr bis 24 Uhr offen.</p>
+            <b>Wo sind unsere Standorte?</b>
+            <p>Aktuell haben wir nur ein Standort in Heilbronn im K3. <br>
+                Wir können jedoch mit Freude verkünden, dass weitere Restaurants für unsere Kunden in Planung sind!</p>
+        </div>
+    </div>
+
+{% endblock %}
