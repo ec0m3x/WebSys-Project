@@ -1,27 +1,30 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <div class="container">
-        <h3>Deine Informationen <a href="{{ url_for('userdata') }}">bearbeiten</a> | <a
-                href="{{ url_for('changepassword') }}">Passwort ändern</a></h3>
-        <table class="table">
-            <tr class="bg-gradient">
-                <th>Name</th>
-                <th>E-Mail</th>
-                <th>Admin</th>
-            </tr>
-            {% for nutzer in nutzerdaten %}
-                <tr>
-                    <td>
-                        {{ nutzer.name }}
-                    </td>
-                    <td>
-                        {{ nutzer.email }}
-                    </td>
-                    <td>
-                        {{ nutzer.adminflag }}
-                    </td>
+    <form method="POST" action="/deleteacc">
+        <div class="container">
+            <h3>Deine Informationen <a href="{{ url_for('userdata') }}">bearbeiten</a> | <a
+                    href="{{ url_for('changepassword') }}">Passwort ändern</a> |
+                <button type="submit" class="btn btn-primary">Kontolöschung beantragen</button></h3>
+            <table class="table">
+                <tr class="bg-gradient">
+                    <th>Name</th>
+                    <th>E-Mail</th>
+                    <th>Admin</th>
                 </tr>
-            {% endfor %}
-        </table>
-    </div>
+                {% for nutzer in nutzerdaten %}
+                    <tr>
+                        <td>
+                            {{ nutzer.name }}
+                        </td>
+                        <td>
+                            {{ nutzer.email }}
+                        </td>
+                        <td>
+                            {{ nutzer.adminflag }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </form>
 {% endblock %}

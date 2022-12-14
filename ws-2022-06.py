@@ -535,6 +535,21 @@ def contactform():
         return redirect(url_for('contactform'))
     return render_template('contactform.html')
 
+@app.route('/deleteacc', methods=['GET', 'POST'])
+def deleteacc():
+    cursor = g.con.cursor()
+    cursor.execute('SELECT email FROM users where name = %s', (session.get("username"),))
+    row = cursor.fetchone()
+    user_email = row[0]
+    cursor.close()
+    if request.method == 'POST':
+        msg = Message('Kontolöschung', recipients=[str(user_email)])
+        msg.body = f"{session.get('username')} möchte Konto löschen."
+        mail.send(msg)
+        flash('Kontolöschung erfolgreich beantragt! Wir melden uns bei Ihnen.')
+        return redirect(url_for('account'))
+    return render_template('account.html')
+
 # Start der Flask-Anwendung
 if __name__ == '__main__':
     app.run(debug=True)
