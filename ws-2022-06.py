@@ -528,8 +528,8 @@ def help():
 @app.route('/contactform', methods=['GET', 'POST'])
 def contactform():
     if request.method == 'POST':
-        msg = Message(request.form['art'], sender=str(request.form['email']), recipients=['mail@example.com'])
-        msg.body = request.form['text']
+        msg = Message(request.form['art'], recipients=[str(request.form['email'])])
+        msg.body = f"{request.form['name']}, {request.form['text']}"
         mail.send(msg)
         flash('Abgeschickt')
         return redirect(url_for('contactform'))
