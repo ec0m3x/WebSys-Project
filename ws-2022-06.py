@@ -16,7 +16,7 @@ from db.db_credentials import DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE
 app = Flask(__name__)
 app.secret_key = 'irgendwas'
 
-app.config['MAIL_SERVER'] = 'mail.websys.win.hs-heilbronn.de'
+app.config['MAIL_SERVER'] = '141.7.63.69'
 app.config['MAIL_PORT'] = 25
 app.config['MAIL_USERNAME'] = 'websys'
 app.config['MAIL_PASSWORD'] = 'webmail'
@@ -528,8 +528,8 @@ def help():
 @app.route('/contactform', methods=['GET', 'POST'])
 def contactform():
     if request.method == 'POST':
-        msg = Message('Test', recipients=['mail@example.com'])
-        msg.body = "Das ist ein Test."
+        msg = Message(request.form['art'], sender=str(request.form['email']), recipients=['mail@example.com'])
+        msg.body = request.form['text']
         mail.send(msg)
         flash('Abgeschickt')
         return redirect(url_for('contactform'))
