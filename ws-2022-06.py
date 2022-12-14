@@ -1,6 +1,7 @@
 # Import benötigter Flask-Module
 from functools import wraps
 from flask import Flask, render_template, request, flash, session, url_for, g, redirect
+from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, time
 import mysql.connector
@@ -15,6 +16,13 @@ from db.db_credentials import DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE
 app = Flask(__name__)
 app.secret_key = 'irgendwas'
 
+app.config['MAIL_SERVER'] = 'mail.websys.win.hs-heilbronn.de'
+app.config['MAIL_PORT'] = 25
+app.config['MAIL_USERNAME'] = 'websys'
+app.config['MAIL_PASSWORD'] = 'webmail'
+app.config['MAIL_DEFAULT_SENDER'] = 'mail@example.com'
+
+mail = Mail(app)
 
 def login_required(logged_in):
     """ Definiere View Decorator login_required """
@@ -515,9 +523,17 @@ def account():
 
 @app.route('/help', methods=['GET', 'POST'])
 def help():
-
     return render_template('help.html')
 
+@app.route('/contactform', methods=['GET', 'POST'])
+def contactform():
+    if request.method == 'POST':
+        msg = Message('Test', recipients=['mail@example.com'])
+        msg.body = "Das ist ein Test."
+        mail.send(msg)
+        flash('Abgeschickt')
+        return redirect(url_for('contactform'))
+    return render_template('contactform.html')
 
 # Start der Flask-Anwendung
 if __name__ == '__main__':
