@@ -16,7 +16,10 @@
                        placeholder="Passwort eingeben" required>
             </div>
             <button type="submit" class="btn btn-primary">Anmelden</button>
+            <br>
             <a href="{{ url_for('sign_up') }}">Sie haben noch kein Konto? Hier registrieren!</a>
+            <br>
+            <a href="{{ url_for('resetpassword') }}">Sie haben Ihr Passwort vergessen? Hier zurücksetzen!</a>
         </form>
     </div>
 {% endblock %}

@@ -2,6 +2,7 @@
 from functools import wraps
 from flask import Flask, render_template, request, flash, session, url_for, g, redirect
 from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, time
 import mysql.connector
@@ -197,7 +198,8 @@ def home():
             cursor = g.con.cursor()
             cursor.execute('INSERT INTO `reservations` (capacity, starttime, endtime, tableid, userid) VALUES '
                            '(%s, %s, %s, %s, %s)',
-                           (request.form['capacity'], request.form['starttime'], request.form['endtime'], table_id, user_id,))
+                           (request.form['capacity'], request.form['starttime'], request.form['endtime'],
+                            table_id, user_id,))
             g.con.commit()
             cursor.close()
             flash("Reservierung erfolgreich!")
@@ -458,7 +460,8 @@ def changereservation(myid):
             cursor = g.con.cursor()
             cursor.execute('INSERT INTO `reservations` (capacity, starttime, endtime, tableid, userid) VALUES '
                            '(%s, %s, %s, %s, %s)',
-                           (request.form['capacity'], request.form['starttime'], request.form['endtime'], table_id, user_id,))
+                           (request.form['capacity'], request.form['starttime'], request.form['endtime'],
+                            table_id, user_id,))
             g.con.commit()
             cursor.close()
             flash("Reservierung erfolgreich geändert!")
@@ -528,7 +531,7 @@ def help():
 @app.route('/contactform', methods=['GET', 'POST'])
 def contactform():
     if request.method == 'POST':
-        msg = Message(request.form['art'], recipients=[str(request.form['email'])])
+        msg = Message(request.form['art'], sender=str(request.form['email']), recipients=['labwedelasys@mail.com'])
         msg.body = f"{request.form['name']}, {request.form['text']}"
         mail.send(msg)
         flash('Abgeschickt')
@@ -543,12 +546,76 @@ def deleteacc():
     user_email = row[0]
     cursor.close()
     if request.method == 'POST':
-        msg = Message('Kontolöschung', recipients=[str(user_email)])
+        msg = Message('Kontolöschung', sender=str(user_email), recipients=['lawebdelasys@mail.com'])
         msg.body = f"{session.get('username')} möchte Konto löschen."
         mail.send(msg)
         flash('Kontolöschung erfolgreich beantragt! Wir melden uns bei Ihnen.')
         return redirect(url_for('account'))
     return render_template('account.html')
+def get_reset_token(email):
+    s = URLSafeTimedSerializer(app.secret_key)
+    token = s.dumps(email, salt='email-confirm')
+    return token
+@app.route('/resetpassword', methods=['GET', 'POST'])
+def resetpassword():
+    if request.method == 'POST':
+        #Überprüfe, ob die Email existiert
+        cursor = g.con.cursor()
+        cursor.execute('SELECT id FROM users where email = %s', (request.form['email'],))
+        row = cursor.fetchone()
+        cursor.close()
+        if row:
+            token = get_reset_token(request.form['email'])
+            # Schicke eine Mail an die Email, wenn sie existiert mit einem generierten Link
+            msg = Message('Passwortzurücksetzung', sender='lawebdelasys@mail.com',
+                          recipients=[str(request.form['email'])])
+            link = url_for('confirmmail', token=token, _external=True)
+            msg.body = f"Hier ist der Link zum Zurücksetzen des Passworts: \n {link} \n" \
+                       f"Rufen Sie diesen bitte innerhalb von 2 Minuten auf und erstellen ein neues Passwort."
+            mail.send(msg)
+            flash("Die Mail zum Zurücksetzen des Passworts wurde verschickt.")
+        else:
+            flash('Es existiert kein Konto mit dieser E-Mail Adresse!', category='error')
+            return redirect('resetpassword')
+    return render_template('resetpassword.html')
+
+
+@app.route('/confirmmail/<token>', methods=['GET', 'POST'])
+def confirmmail(token):
+    try:
+        s = URLSafeTimedSerializer(app.secret_key)
+        email = s.loads(token, salt='email-confirm', max_age=120)
+    except SignatureExpired:
+        flash("Der Link ist abgelaufen!", category="error")
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        cursor = g.con.cursor()
+        cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
+        row = cursor.fetchone()
+        user_id = row[0]
+        cursor.close()
+
+        cursor = g.con.cursor()
+        cursor.execute('SELECT password FROM `users` where id = %s', (user_id,))
+        row2 = cursor.fetchone()
+        cursor.close()
+        pw_from_db = row2[0]
+
+        if request.form['newpassword1'] == request.form['newpassword2']:
+            if check_password_hash(pwhash=pw_from_db, password=request.form["newpassword1"]):
+                flash("Neues Passwort darf nicht mit altem Passwort übereinstimmen", category="error")
+                return redirect(url_for('confirmmail'))
+            newpassword1 = generate_password_hash(password=request.form['newpassword1'])
+            cursor = g.con.cursor()
+            cursor.execute("UPDATE `users` SET password=%s WHERE id=%s",
+                           (newpassword1, user_id,))
+            g.con.commit()
+            cursor.close()
+            flash("Passwort gesetzt")
+            return redirect(url_for('login'))
+        flash("Passwörter stimmen nicht überein", category="error")
+        return redirect(url_for('confirmmail'))
+    return render_template('confirmmail.html')
 
 # Start der Flask-Anwendung
 if __name__ == '__main__':
