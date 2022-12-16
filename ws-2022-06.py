@@ -202,7 +202,21 @@ def home():
                             table_id, user_id,))
             g.con.commit()
             cursor.close()
+
+            msg = Message('Reservierung', sender='lawebdelasys@mail.com',
+                          recipients=[nutzerdaten[0]['email']])
+            msg.body = f"Vielen Dank für Ihre Reservierung! \n" \
+                       f"Anbei finden Sie Ihre Reservierung: \n" \
+                       f"Tisch-ID: {table_id} \n" \
+                       f"Personenanzahl: {request.form['capacity']} \n" \
+                       f"Reservierungsbeginn: {request.form['starttime']} \n" \
+                       f"Reservierungsende: {request.form['endtime']} \n" \
+                       f"Wir freuen uns Sie bei uns Willkomen zu heißen! \n" \
+                       f"La Web de la Sys"
+            mail.send(msg)
+
             flash("Reservierung erfolgreich!")
+
             return redirect(url_for('home'))
         else:
             flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
@@ -274,7 +288,18 @@ def sign_up():
                            (request.form['username'], request.form['email'], password,))
             g.con.commit()
             cursor.close()
-            flash("Benutzer angelegt!")
+
+            msg = Message('Registrierung', sender='lawebdelasys@mail.com',
+                          recipients=[str(request.form['email'])])
+            msg.body = f"Vielen Dank, dass Sie sich bei uns registriert haben. \n" \
+                       f"Anbei finden Sie Ihre Informationen: \n" \
+                       f"Nutzername: {request.form['username']} \n" \
+                       f"E-Mail: {request.form['email']} \n" \
+                       f"Auf eine baldige Reservierung! \n" \
+                       f"La Web de la Sys"
+            mail.send(msg)
+
+            flash("Konto angelegt!")
             return redirect(url_for('index'))
         flash("Passwörter stimmen nicht überein!", category="error")
     return render_template("sign_up.html")
@@ -589,14 +614,9 @@ def confirmmail(token):
         flash("Der Link ist abgelaufen!", category="error")
         return redirect(url_for('login'))
     if request.method == 'POST':
-        cursor = g.con.cursor()
-        cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
-        row = cursor.fetchone()
-        user_id = row[0]
-        cursor.close()
 
         cursor = g.con.cursor()
-        cursor.execute('SELECT password FROM `users` where id = %s', (user_id,))
+        cursor.execute('SELECT password FROM `users` where email = %s', (email,))
         row2 = cursor.fetchone()
         cursor.close()
         pw_from_db = row2[0]
@@ -607,8 +627,8 @@ def confirmmail(token):
                 return redirect(url_for('confirmmail'))
             newpassword1 = generate_password_hash(password=request.form['newpassword1'])
             cursor = g.con.cursor()
-            cursor.execute("UPDATE `users` SET password=%s WHERE id=%s",
-                           (newpassword1, user_id,))
+            cursor.execute("UPDATE `users` SET password=%s WHERE email=%s",
+                           (newpassword1, email,))
             g.con.commit()
             cursor.close()
             flash("Passwort gesetzt")
