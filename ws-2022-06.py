@@ -17,6 +17,7 @@ from db.db_credentials import DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE
 app = Flask(__name__)
 app.secret_key = 'irgendwas'
 
+# Einstellungen um Mail Server zu verbinden
 app.config['MAIL_SERVER'] = '141.7.63.69'
 app.config['MAIL_PORT'] = 25
 app.config['MAIL_USERNAME'] = 'websys'
@@ -83,6 +84,7 @@ def index():
 # Admin Bereich
 @admin_required
 def admin():
+    # Alle Reservierungen als dictionary auslesen
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, capacity, starttime, endtime, tableid, userid FROM reservations', )
     reservierungdaten = cursor.fetchall()
@@ -95,6 +97,7 @@ def admin():
     # print(nutzerdaten)
     cursor.close()
 
+    # Alle Tische als dictionary auslesen
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, capacity FROM `table`', )
     tischdaten = cursor.fetchall()
@@ -108,87 +111,84 @@ def admin():
 def home():
     """Hauptseite"""
 
+    # ID und E-Mail des momentan angemeldeten Users bekommen
     cursor = g.con.cursor()
-    cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
+    cursor.execute('SELECT id, email FROM users where name = %s', (session.get("username"),))
     row = cursor.fetchone()
     user_id = row[0]
+    user_email = row[1]
     cursor.close()
 
+    # Alle getätigten Reservierungen des Users als dictionary auslesen
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, capacity, starttime, endtime, tableid FROM `reservations` where userid = %s', (user_id,))
     reservierungdaten = cursor.fetchall()
     cursor.close()
 
-    cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
-    nutzerdaten = cursor.fetchall()
-    cursor.close()
+    # Alle Nutzer als dictionary auslesen
+    #cursor = g.con.cursor(dictionary=True)
+    #cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
+    #nutzerdaten = cursor.fetchall()
+    #cursor.close()
 
-    cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT capacity FROM `table`', )
-    tischdaten = cursor.fetchall()
-    cursor.close()
+    # Alle Tische als dictionary auslesen
+    #cursor = g.con.cursor(dictionary=True)
+    #cursor.execute('SELECT capacity FROM `table`', )
+    #tischdaten = cursor.fetchall()
+    #cursor.close()
 
     if request.method == "POST":
 
+        # Ein Tisch auslesen, das eine höhere oder gleiche Kapazität hat
         cursor = g.con.cursor(buffered=True)
         cursor.execute('SELECT id FROM `table` where capacity >= %s', (request.form["capacity"],))
         row2 = cursor.fetchone()
         cursor.close()
+        # Wenn kein Tisch gefunden wird, Weiterleitung um neue Reservierung zu tätigen mit Fehlermeldung
         if row2 is None:
             flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
             return redirect(url_for('home'))
         table_id = row2[0]
 
-        '''2 Stunden Dauer nicht überschreiten'''
+        # 2 Stunden Dauer nicht überschreiten
         starttime = datetime.strptime(request.form["starttime"], '%Y-%m-%dT%H:%M')
         endtime = datetime.strptime(request.form["endtime"], '%Y-%m-%dT%H:%M')
         diff = endtime - starttime
         sec = diff.total_seconds()
         hours = sec / (60 * 60)
 
+        # Wenn 2 Stunden Dauer überschritten wird, darf man nicht reservieren und wird auf Home weitergeleitet
         if hours > 2:
             flash("Dauer der Reservierung darf 2 Stunden nicht überschreiten!", category="error")
             return redirect(url_for('home'))
 
-        '''Überprüfen ob im Öffnungszeiten-Rahmen'''
+        # Überprüfen ob im Öffnungszeiten-Rahmen
         start = time(18, 0)
         end = time(23, 59)
         if start <= starttime.time() <= end and start <= endtime.time() <= end:
 
+            # Überprüfung ob es eine Reservierung gibt, die sich mit der angegebenen Startzeit überschneidet
             cursor = g.con.cursor(buffered=True)
             cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` where %s '
                            'between starttime and endtime',
                            (request.form["starttime"],))
             row3 = cursor.fetchone()
+
+            # Überprüfung ob es eine Reservierung gibt, die sich mit der angegebenen Endzeit überschneidet
             cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` where %s '
                            'between starttime and endtime',
                            (request.form["endtime"],))
             row4 = cursor.fetchone()
+
+            # Überprüfung ob es eine Reservierung gibt, die sich mit der angegebenen Startzeit & Endzeit überschneidet
             cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` '
                            'where starttime >= %s and endtime <= %s',
                            (request.form["starttime"], request.form["endtime"]))
             row5 = cursor.fetchone()
-            '''
-            cursor = g.con.cursor(buffered=True)
-            cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
-                           (request.form["starttime"],))
-            row5 = cursor.fetchone()
             cursor.close()
 
-            cursor = g.con.cursor(buffered=True)
-            cursor.execute('SELECT tableid FROM `reservations` where %s between starttime and endtime',
-                           (request.form["endtime"],))
-            row6 = cursor.fetchone()
-            cursor.close()
-
-            cursor = g.con.cursor(buffered=True)
-            cursor.execute('SELECT tableid FROM `reservations` where starttime >= %s and endtime <= %s',
-                           (request.form["starttime"], request.form["endtime"]))
-            row8 = cursor.fetchone()
-            '''
-            cursor.close()
-
+            ''' Erste Abfrage ist, ob überhaupt in einer der 3 Abfragen eine Überschneidung ist, dann wird 
+            überprüft ob wenn es eine Überschneidung gibt, das man checkt, ob genau dieser Tisch schon reserviert ist'''
             if (row3 is not None or row4 is not None or row5 is not None) and \
                     (row3 is not None and table_id == row3[2] or row4 is not None and table_id == row4[2]
                      or row5 is not None and table_id == row5[2]):
@@ -196,6 +196,7 @@ def home():
                 return redirect(url_for('home'))
 
             cursor = g.con.cursor()
+            # Einfügen der neuen Reservierung in die Datenbank
             cursor.execute('INSERT INTO `reservations` (capacity, starttime, endtime, tableid, userid) VALUES '
                            '(%s, %s, %s, %s, %s)',
                            (request.form['capacity'], request.form['starttime'], request.form['endtime'],
@@ -203,8 +204,9 @@ def home():
             g.con.commit()
             cursor.close()
 
+            # Senden einer Bestätigungsmail an den Kunden
             msg = Message('Reservierung', sender='lawebdelasys@mail.com',
-                          recipients=[nutzerdaten[0]['email']])
+                          recipients=[user_email])
             msg.body = f"Vielen Dank für Ihre Reservierung! \n" \
                        f"Anbei finden Sie Ihre Reservierung: \n" \
                        f"Tisch-ID: {table_id} \n" \
@@ -220,8 +222,7 @@ def home():
             return redirect(url_for('home'))
         else:
             flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
-    return render_template('home.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten,
-                           tischdaten=tischdaten)
+    return render_template('home.html', reservierungdaten=reservierungdaten)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -334,6 +335,8 @@ def createtable():
 @app.route('/userdata', methods=['GET', 'POST'])
 @login_required
 def userdata():
+
+    # Rausfinden der ID des momentan angemeldeten Users
     cursor = g.con.cursor()
     cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
     row = cursor.fetchone()
@@ -342,7 +345,7 @@ def userdata():
 
     cursor = g.con.cursor(dictionary=True)
     if request.method == "POST":
-        '''Überprüfen, ob Username schon vergeben'''
+        # Überprüfen, ob Username schon vergeben
         if request.form["name"] != session.get('username'):
             cursor.execute('SELECT name FROM users where name = %s', (request.form["name"],))
             row = cursor.fetchone()
@@ -353,6 +356,7 @@ def userdata():
         cursor.execute('SELECT email FROM users where name = %s', (session.get("username"),))
         row2 = cursor.fetchone()
         e_mail = row2['email']
+        # Überprüfen, on Email schon vergeben
         if request.form["email"] != e_mail:
             cursor.execute('SELECT email FROM users where email = %s', (request.form["email"],))
             row = cursor.fetchone()
@@ -375,20 +379,24 @@ def userdata():
 @login_required
 def changepassword():
     if request.method == "POST":
+
+        # Rausfinden der ID des momentan angemeldeten Users
         cursor = g.con.cursor()
         cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
         row = cursor.fetchone()
         user_id = row[0]
-        cursor.close()
 
-        cursor = g.con.cursor()
+        # Rausfinden des Passworts des momentan angemeldeten Users
         cursor.execute('SELECT password FROM `users` where id = %s', (user_id,))
         row2 = cursor.fetchone()
         cursor.close()
         pw_from_db = row2[0]
 
+        # Überprüfen, ob Passwort mit eingegebenem Passwort übereinstimmt
         if check_password_hash(pwhash=pw_from_db, password=request.form["oldpassword"]):
+            # Überprüfen, ob neues Passwort mit Bestätigung des Passwortes übereinstimmt
             if request.form['newpassword1'] == request.form['newpassword2']:
+                # Überprüfen, ob neues Passwort, das alte Passwort ist
                 if check_password_hash(pwhash=pw_from_db, password=request.form["newpassword1"]):
                     flash("Neues Passwort darf nicht mit altem Passwort übereinstimmen", category="error")
                     return redirect(url_for('changepassword'))
@@ -409,17 +417,22 @@ def changepassword():
 
 
 @app.route('/changereservation/<myid>', methods=['GET', 'POST'])
+@login_required
 def changereservation(myid):
+
+    # Rausfinden der ID des momentan angemeldeten Users
     cursor = g.con.cursor()
     cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
     row = cursor.fetchone()
     user_id = row[0]
     cursor.close()
 
+    # Rausfinden der Reservierung, die geändert werden soll
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, capacity, starttime, endtime, tableid FROM `reservations` where id = %s', (myid,))
     daten = cursor.fetchone()
     cursor.close()
+    # Zwischenspeicherung der Reservierung
     mycapacity = daten['capacity']
     mystarttime = daten['starttime']
     myendtime = daten['endtime']
@@ -439,7 +452,7 @@ def changereservation(myid):
             return redirect(url_for('home'))
         table_id = row2[0]
 
-        '''2 Stunden Dauer nicht überschreiten'''
+        # 2 Stunden Dauer nicht überschreiten
         starttime = datetime.strptime(request.form["starttime"], '%Y-%m-%dT%H:%M')
         endtime = datetime.strptime(request.form["endtime"], '%Y-%m-%dT%H:%M')
         diff = endtime - starttime
@@ -450,13 +463,13 @@ def changereservation(myid):
             flash("Dauer der Reservierung darf 2 Stunden nicht überschreiten!", category="error")
             return redirect(url_for('home'))
 
-        '''Überprüfen ob im Öffnungszeiten-Rahmen'''
+        # Überprüfen ob im Öffnungszeiten-Rahmen
         start = time(18, 0)
         end = time(23, 59)
         if start <= starttime.time() <= end and start <= endtime.time() <= end:
 
             cursor = g.con.cursor(buffered=True)
-            '''Nimmt alle Reservierungen wo die Startzeit zwischen einer anderen Reservierung liegt '''
+            # Nimmt alle Reservierungen wo die Startzeit zwischen einer anderen Reservierung liegt
             cursor.execute('SELECT starttime, endtime, tableid FROM `reservations` where %s '
                            'between starttime and endtime',
                            (request.form["starttime"],))
@@ -496,40 +509,58 @@ def changereservation(myid):
     return render_template('changereservation.html', daten=daten)
 
 @app.route('/deleteres', methods=['GET', 'POST'])
+@login_required
 def deleteres():
     cursor = g.con.cursor()
     if request.method == 'POST':
-        for getid in request.form.getlist('checkbox'):
-            cursor.execute("DELETE FROM `reservations` WHERE id=%s", (getid,))
-            g.con.commit()
-        cursor.close()
-        flash("Reservierung gelöscht")
-        return redirect(url_for('home'))
+        if request.form.getlist('checkbox'):
+            # Löscht alle Reservierungen, die mit der Checkbox ausgewählt wurden
+            for getid in request.form.getlist('checkbox'):
+                cursor.execute("DELETE FROM `reservations` WHERE id=%s", (getid,))
+                g.con.commit()
+            cursor.close()
+            flash("Reservierung gelöscht")
+        else:
+            flash("Nichts zum Löschen ausgewählt!", category='error')
+        if session.get('admin') == 1:
+            return redirect(url_for('admin'))
+        else:
+            return redirect(url_for('home'))
     return render_template('home.html')
 
 
 @app.route('/deleteuser', methods=['GET', 'POST'])
+@admin_required
 def deleteuser():
     cursor = g.con.cursor()
     if request.method == 'POST':
-        for getid in request.form.getlist('checkbox'):
-            cursor.execute("DELETE FROM `users` WHERE id=%s", (getid,))
-            g.con.commit()
-        cursor.close()
-        flash("Nutzer gelöscht")
+        if request.form.getlist('checkbox'):
+            # Löscht alle User, die mit der Checkbox ausgewählt wurden
+            for getid in request.form.getlist('checkbox'):
+                cursor.execute("DELETE FROM `users` WHERE id=%s", (getid,))
+                g.con.commit()
+            cursor.close()
+            flash("Nutzer gelöscht")
+        else:
+            flash("Nichts zum Löschen ausgewählt!", category='error')
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
 
 @app.route('/deletetable', methods=['GET', 'POST'])
+@admin_required
 def deletetable():
     cursor = g.con.cursor()
     if request.method == 'POST':
-        for getid in request.form.getlist('checkbox'):
-            cursor.execute("DELETE FROM `table` WHERE id=%s", (getid,))
-            g.con.commit()
-        cursor.close()
-        flash("Tisch gelöscht")
+        if request.form.getlist('checkbox'):
+            # Löscht alle Tische, die mit der Checkbox ausgewählt wurden
+            for getid in request.form.getlist('checkbox'):
+                cursor.execute("DELETE FROM `table` WHERE id=%s", (getid,))
+                g.con.commit()
+            cursor.close()
+            flash("Tisch gelöscht")
+        else:
+            flash("Nichts zum Löschen ausgewählt!", category='error')
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
@@ -537,11 +568,8 @@ def deletetable():
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    """cursor = g.con.cursor()
-        cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
-        row = cursor.fetchone()
-        cursor.close()"""
 
+    # Auslesen der Userdaten als dictionary
     cursor = g.con.cursor(dictionary=True)
     cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
     nutzerdaten = cursor.fetchall()
@@ -564,6 +592,7 @@ def contactform():
     return render_template('contactform.html')
 
 @app.route('/deleteacc', methods=['GET', 'POST'])
+@login_required
 def deleteacc():
     cursor = g.con.cursor()
     cursor.execute('SELECT email FROM users where name = %s', (session.get("username"),))
@@ -578,10 +607,12 @@ def deleteacc():
         return redirect(url_for('account'))
     return render_template('account.html')
 def get_reset_token(email):
+    # Erstellung einer URL als Zurücksetzung des Passworts
     s = URLSafeTimedSerializer(app.secret_key)
     token = s.dumps(email, salt='email-confirm')
     return token
 @app.route('/resetpassword', methods=['GET', 'POST'])
+@login_required
 def resetpassword():
     if request.method == 'POST':
         #Überprüfe, ob die Email existiert
@@ -606,8 +637,10 @@ def resetpassword():
 
 
 @app.route('/confirmmail/<token>', methods=['GET', 'POST'])
+@login_required
 def confirmmail(token):
     try:
+        # Überprüfung der generierten URL innerhalb von 2 Minuten
         s = URLSafeTimedSerializer(app.secret_key)
         email = s.loads(token, salt='email-confirm', max_age=120)
     except SignatureExpired:
