@@ -22,17 +22,24 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('home') }}">Deine Reservierungen</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('home') }}">Deine Reservierungen</a></li>
+                {% endif %}
                 <li><a href="{{ url_for('about_us') }}">Über uns</a></li>
                 <li><a href="{{ url_for('help') }}">Hilfe</a></li>
                 <li><a href="{{ url_for('contactform') }}">Kontaktformular</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="{{ url_for('sign_up') }}" class="class=" glyphicon glyphicon-user">Registrieren</a></li>
-                <li><a href="{{ url_for('login') }}" class="class=" glyphicon glyphicon-log-in">Anmelden</a></li>
-                <li><a href="{{ url_for('account') }}">Konto</a></li>
-                <li><a href="{{ url_for('logout') }}">Abmelden</a></li>
-                <li><a href="{{ url_for('admin') }}">Admin</a></li>
+                {% if session.username %}
+                    <li><a href="{{ url_for('account') }}">Konto</a></li>
+                    <li><a href="{{ url_for('logout') }}">Abmelden</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('sign_up') }}" class="class=" glyphicon glyphicon-user>Registrieren</a></li>
+                    <li><a href="{{ url_for('login') }}" class="class=" glyphicon glyphicon-log-in>Anmelden</a></li>
+                {% endif %}
+                {% if session.admin %}
+                    <li><a href="{{ url_for('admin') }}">Admin</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>
