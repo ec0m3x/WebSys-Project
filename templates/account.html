@@ -2,14 +2,17 @@
 {% block content %}
     <form method="POST" action="/deleteacc">
         <div class="container">
-            <h3>Deine Informationen <a href="{{ url_for('userdata') }}">bearbeiten</a> | <a
+            <h3>Deine Informationen | <a
                     href="{{ url_for('changepassword') }}">Passwort ändern</a> |
                 <button type="submit" class="btn btn-primary">Kontolöschung beantragen</button></h3>
             <table class="table">
                 <tr class="bg-gradient">
                     <th>Name</th>
                     <th>E-Mail</th>
+                    {% if session.admin %}
                     <th>Admin</th>
+                    {% endif %}
+                    <th></th>
                 </tr>
                 {% for nutzer in nutzerdaten %}
                     <tr>
@@ -19,8 +22,13 @@
                         <td>
                             {{ nutzer.email }}
                         </td>
+                        {% if session.admin %}
                         <td>
                             {{ nutzer.adminflag }}
+                        </td>
+                        {% endif %}
+                        <td>
+                            <a href="{{ url_for('userdata', myid=nutzer.id) }}">Bearbeiten</a>
                         </td>
                     </tr>
                 {% endfor %}

@@ -92,7 +92,7 @@ def admin():
 
     # Alle Nutzer als dictionaries auslesen
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, name, email FROM users', )
+    cursor.execute('SELECT id, name, email, adminflag FROM users', )
     nutzerdaten = cursor.fetchall()
     # print(nutzerdaten)
     cursor.close()
@@ -332,16 +332,9 @@ def createtable():
     return render_template('createtable.html')
 
 
-@app.route('/userdata', methods=['GET', 'POST'])
+@app.route('/userdata/<myid>', methods=['GET', 'POST'])
 @login_required
-def userdata():
-
-    # Rausfinden der ID des momentan angemeldeten Users
-    cursor = g.con.cursor()
-    cursor.execute('SELECT id FROM users where name = %s', (session.get("username"),))
-    row = cursor.fetchone()
-    user_id = row[0]
-    cursor.close()
+def userdata(myid):
 
     cursor = g.con.cursor(dictionary=True)
     if request.method == "POST":
@@ -351,7 +344,10 @@ def userdata():
             row = cursor.fetchone()
             if row is not None:
                 flash("Benutzername ist bereits vergeben", category="error")
-                return redirect(url_for('userdata'))
+                if session.get('admin') == 1:
+                    return redirect(url_for('admin'))
+                else:
+                    return redirect(url_for('account'))
 
         cursor.execute('SELECT email FROM users where name = %s', (session.get("username"),))
         row2 = cursor.fetchone()
@@ -362,14 +358,17 @@ def userdata():
             row = cursor.fetchone()
             if row is not None:
                 flash("Email ist bereits vergeben", category="error")
-                return redirect(url_for('userdata'))
+                if session.get('admin') == 1:
+                    return redirect(url_for('admin'))
+                else:
+                    return redirect(url_for('account'))
         cursor.execute("UPDATE `users` SET name=%s, email=%s WHERE id=%s",
                        (request.form['name'], request.form['email'],
-                        user_id,))
+                        myid,))
         g.con.commit()
         session['username'] = request.form['name']
         flash("Erfolgreich geändert!")
-    cursor.execute("SELECT id, name, email FROM `users` WHERE id=%s", (user_id,))
+    cursor.execute("SELECT id, name, email FROM `users` WHERE id=%s", (myid,))
     daten = cursor.fetchone()
     cursor.close()
     return render_template('userdata.html', htmldaten=daten)
@@ -508,6 +507,25 @@ def changereservation(myid):
             flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
     return render_template('changereservation.html', daten=daten)
 
+@app.route('/changetable/<myid>', methods=['GET', 'POST'])
+@admin_required
+def changetable(myid):
+    # Rausfinden des Tisches, das geändert werden soll
+    cursor = g.con.cursor(dictionary=True)
+    cursor.execute('SELECT id, capacity FROM `table` where id = %s', (myid,))
+    daten = cursor.fetchone()
+    cursor.close()
+
+    if request.method == "POST":
+        cursor = g.con.cursor()
+        cursor.execute('UPDATE `table` SET capacity=%s WHERE id=%s',
+                       (request.form['capacity'], myid))
+        g.con.commit()
+        flash("Tisch erfolgreich geändert!")
+        return redirect(url_for('admin'))
+
+    return render_template('changetable.html', daten=daten)
+
 @app.route('/deleteres', methods=['GET', 'POST'])
 @login_required
 def deleteres():
@@ -571,7 +589,7 @@ def account():
 
     # Auslesen der Userdaten als dictionary
     cursor = g.con.cursor(dictionary=True)
-    cursor.execute('SELECT id, name, email FROM users where name = %s', (session.get("username"),))
+    cursor.execute('SELECT id, name, email, adminflag FROM users where name = %s', (session.get("username"),))
     nutzerdaten = cursor.fetchall()
     cursor.close()
 

@@ -16,6 +16,7 @@
                     <th>Tisch ID</th>
                     <th>Nutzer ID</th>
                     <th><input type="submit" value="Entfernen" class="btn btn-primary"></th>
+                    <th></th>
                 </tr>
                 {% for reservierung in reservierungdaten %}
                     <tr id="{{ reservierung.id }}">
@@ -38,6 +39,9 @@
                             {{ reservierung.userid }}
                         </td>
                         <td><input type="checkbox" name="checkbox" value="{{ reservierung.id }}"/></td>
+                        <td>
+                            <a href="{{ url_for('changereservation', myid=reservierung.id) }}">Bearbeiten</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -52,7 +56,9 @@
                     <th>Nutzer ID</th>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Adminflag</th>
                     <th><input type="submit" value="Entfernen" class="btn btn-primary"></th>
+                    <th></th>
                 </tr>
                 {% for nutzer in nutzerdaten %}
                     <tr id="{{ nutzer.id }}">
@@ -65,7 +71,13 @@
                         <td>
                             {{ nutzer.email }}
                         </td>
+                        <td>
+                            {{ nutzer.adminflag }}
+                        </td>
                         <td><input type="checkbox" name="checkbox" value="{{ nutzer.id }}"/></td>
+                        <td>
+                            <a href="{{ url_for('userdata', myid=nutzer.id) }}">Bearbeiten</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -80,6 +92,7 @@
                     <th>Tisch ID</th>
                     <th>Kapazität</th>
                     <th><input type="submit" value="Entfernen" class="btn btn-primary"></th>
+                    <th></th>
                 </tr>
                 {% for tische in tischdaten %}
                     <tr id="{{ tische.id }}">
@@ -90,6 +103,9 @@
                             {{ tische.capacity }}
                         </td>
                         <td><input type="checkbox" name="checkbox" value="{{ tische.id }}"/></td>
+                        <td>
+                            <a href="{{ url_for('changetable', myid=tische.id) }}">Bearbeiten</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
