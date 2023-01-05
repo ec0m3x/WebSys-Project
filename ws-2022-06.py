@@ -232,15 +232,15 @@ def login():
     if request.method == 'POST':
         cursor = g.con.cursor()
         cursor.execute('SELECT password,adminflag FROM users where name = %s', (request.form["username"],))
-        row = cursor.fetchall()
+        row = cursor.fetchone()
         cursor.close()
 
         if row is None:
             flash("Nutzername existiert nicht!", category="error")
             return redirect(url_for('login'))
 
-        pw_from_db = row[0][0]
-        adminflag = row[0][1]
+        pw_from_db = row[0]
+        adminflag = row[1]
         if check_password_hash(pwhash=pw_from_db, password=request.form["password"]):
             # Speichern des Usernamens in der Session
             if adminflag == 1:
@@ -301,7 +301,7 @@ def sign_up():
             mail.send(msg)
 
             flash("Konto angelegt!")
-            return redirect(url_for('index'))
+            return redirect(url_for('login'))
         flash("Passwörter stimmen nicht überein!", category="error")
     return render_template("sign_up.html")
 
@@ -555,7 +555,10 @@ def deleteuser():
         if request.form.getlist('checkbox'):
             # Löscht alle User, die mit der Checkbox ausgewählt wurden
             for getid in request.form.getlist('checkbox'):
+                cursor.execute('ALTER TABLE reservations DROP FOREIGN KEY users')
                 cursor.execute("DELETE FROM `users` WHERE id=%s", (getid,))
+                cursor.execute("DELETE FROM `reservations` WHERE userid=%s", (getid,))
+                cursor.execute('ALTER TABLE reservations ADD CONSTRAINT users FOREIGN KEY (userid) REFERENCES users (id)')
                 g.con.commit()
             cursor.close()
             flash("Nutzer gelöscht")
