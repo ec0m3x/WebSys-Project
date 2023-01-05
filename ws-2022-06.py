@@ -633,7 +633,6 @@ def get_reset_token(email):
     token = s.dumps(email, salt='email-confirm')
     return token
 @app.route('/resetpassword', methods=['GET', 'POST'])
-@login_required
 def resetpassword():
     if request.method == 'POST':
         #Überprüfe, ob die Email existiert
