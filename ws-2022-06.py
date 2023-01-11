@@ -79,9 +79,9 @@ def index():
     """Startseite"""
     return render_template('index.html')
 
-
-@app.route('/admin')
 # Admin Bereich
+# Bearbeitet von Sebastian, Donjeta und Onur
+@app.route('/admin')
 @admin_required
 def admin():
     # Alle Reservierungen als dictionary auslesen
@@ -105,7 +105,8 @@ def admin():
     return render_template('admin.html', reservierungdaten=reservierungdaten, nutzerdaten=nutzerdaten,
                            tischdaten=tischdaten)
 
-
+# Einsehen der getätigten Reservierungen und Hinzufügen von neuen Reservierungen
+# Bearbeitet von Donjeta und Onur und Cemre
 @app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
@@ -318,7 +319,9 @@ def logout():
 def about_us():
     return render_template('about_us.html')
 
-
+# Erstellt ein Tisch
+# Bearbeitet von Donjeta und Onur im Offline Projekt (Es wurde ein Offline Projekt erstellt, welches dann
+# durch Sebastian aufgelöst wurde)
 @app.route('/createtable', methods=['GET', 'POST'])
 @login_required
 def createtable():
@@ -331,7 +334,7 @@ def createtable():
         flash('Tisch angelegt.')
     return render_template('createtable.html')
 
-
+# Nutzer kann seine Nutzerdaten bearbeiten
 @app.route('/userdata/<myid>', methods=['GET', 'POST'])
 @login_required
 def userdata(myid):
@@ -373,7 +376,8 @@ def userdata(myid):
     cursor.close()
     return render_template('userdata.html', htmldaten=daten)
 
-
+# Nutzer kann Passwort ändern
+# Bearbeitet von Donjeta und Onur
 @app.route('/changepassword', methods=['GET', 'POST'])
 @login_required
 def changepassword():
@@ -414,7 +418,7 @@ def changepassword():
     return render_template('changepassword.html')
 
 
-
+# Nutzer, bzw. Admin kann Reservierung bearbeiten
 @app.route('/changereservation/<myid>', methods=['GET', 'POST'])
 @login_required
 def changereservation(myid):
@@ -448,7 +452,10 @@ def changereservation(myid):
         cursor.close()
         if row2 is None:
             flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
-            return redirect(url_for('home'))
+            if session.get('admin') == 1:
+                return redirect(url_for('admin'))
+            else:
+                return redirect(url_for('home'))
         table_id = row2[0]
 
         # 2 Stunden Dauer nicht überschreiten
@@ -460,7 +467,10 @@ def changereservation(myid):
 
         if hours > 2:
             flash("Dauer der Reservierung darf 2 Stunden nicht überschreiten!", category="error")
-            return redirect(url_for('home'))
+            if session.get('admin') == 1:
+                return redirect(url_for('admin'))
+            else:
+                return redirect(url_for('home'))
 
         # Überprüfen ob im Öffnungszeiten-Rahmen
         start = time(18, 0)
@@ -492,7 +502,10 @@ def changereservation(myid):
                            (mycapacity, mystarttime, myendtime, mytable, user_id))
                 cursor.close()
                 flash("Kein Tisch mit dieser Kapazität ist zur ausgewählten Uhrzeit verfügbar.", category="error")
-                return redirect(url_for('home'))
+                if session.get('admin') == 1:
+                    return redirect(url_for('admin'))
+                else:
+                    return redirect(url_for('home'))
 
             cursor = g.con.cursor()
             cursor.execute('INSERT INTO `reservations` (capacity, starttime, endtime, tableid, userid) VALUES '
@@ -502,11 +515,15 @@ def changereservation(myid):
             g.con.commit()
             cursor.close()
             flash("Reservierung erfolgreich geändert!")
-            return redirect(url_for('home'))
+            if session.get('admin') == 1:
+                return redirect(url_for('admin'))
+            else:
+                return redirect(url_for('home'))
         else:
             flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
     return render_template('changereservation.html', daten=daten)
 
+# Admin kann Tische bearbeiten
 @app.route('/changetable/<myid>', methods=['GET', 'POST'])
 @admin_required
 def changetable(myid):
@@ -526,6 +543,7 @@ def changetable(myid):
 
     return render_template('changetable.html', daten=daten)
 
+# Admin kann Reservierungen löschen
 @app.route('/deleteres', methods=['GET', 'POST'])
 @login_required
 def deleteres():
@@ -546,7 +564,7 @@ def deleteres():
             return redirect(url_for('home'))
     return render_template('home.html')
 
-
+# Admin kann Nutzer löschen
 @app.route('/deleteuser', methods=['GET', 'POST'])
 @admin_required
 def deleteuser():
@@ -567,7 +585,8 @@ def deleteuser():
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
-
+# Admin kann Tische löschen
+# Bearbeitet von Donjeta und Onur
 @app.route('/deletetable', methods=['GET', 'POST'])
 @admin_required
 def deletetable():
@@ -585,7 +604,7 @@ def deletetable():
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
-
+# Kontoübersicht des Nutzers
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
@@ -602,6 +621,7 @@ def account():
 def help():
     return render_template('help.html')
 
+# Kontaktformular
 @app.route('/contactform', methods=['GET', 'POST'])
 def contactform():
     if request.method == 'POST':
@@ -612,6 +632,7 @@ def contactform():
         return redirect(url_for('contactform'))
     return render_template('contactform.html')
 
+# Nutzer kann Kontolöschung beantragen
 @app.route('/deleteacc', methods=['GET', 'POST'])
 @login_required
 def deleteacc():
@@ -627,11 +648,15 @@ def deleteacc():
         flash('Kontolöschung erfolgreich beantragt! Wir melden uns bei Ihnen.')
         return redirect(url_for('account'))
     return render_template('account.html')
+
+# Erstellung der URL zum Zurücksetzen des Passworts
 def get_reset_token(email):
     # Erstellung einer URL als Zurücksetzung des Passworts
     s = URLSafeTimedSerializer(app.secret_key)
     token = s.dumps(email, salt='email-confirm')
     return token
+
+# Verschicken des Zurücksetzen-Passworts per Mail
 @app.route('/resetpassword', methods=['GET', 'POST'])
 def resetpassword():
     if request.method == 'POST':
@@ -655,9 +680,8 @@ def resetpassword():
             return redirect('resetpassword')
     return render_template('resetpassword.html')
 
-
+# Erstellung eines neuen Passworts mit generierter URL
 @app.route('/confirmmail/<token>', methods=['GET', 'POST'])
-@login_required
 def confirmmail(token):
     try:
         # Überprüfung der generierten URL innerhalb von 2 Minuten
