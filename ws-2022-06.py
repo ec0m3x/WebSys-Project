@@ -140,17 +140,22 @@ def home():
 
     if request.method == "POST":
 
-        # Ein Tisch auslesen, das eine höhere oder gleiche Kapazität hat
+        # Ein Tisch auslesen, das eine gleiche oder +1 Kapazität hat
         cursor = g.con.cursor(buffered=True)
-        cursor.execute('SELECT id FROM `table` where capacity >= %s', (request.form["capacity"],))
+        cursor.execute('SELECT id FROM `table` where capacity = %s', (request.form["capacity"],))
         row2 = cursor.fetchone()
-        cursor.close()
         # Wenn kein Tisch gefunden wird, Weiterleitung um neue Reservierung zu tätigen mit Fehlermeldung
         if row2 is None:
-            flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
-            return redirect(url_for('home'))
-        table_id = row2[0]
-
+            cursor.execute('SELECT id FROM `table` where capacity = (%s)+1', (int(request.form["capacity"]),))
+            row3 = cursor.fetchone()
+            cursor.close()
+            if row3 is None:
+                flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
+                return redirect(url_for('home'))
+            else:
+                table_id = row3[0]
+        else:
+            table_id = row2[0]
         # 2 Stunden Dauer nicht überschreiten
         starttime = datetime.strptime(request.form["starttime"], '%Y-%m-%dT%H:%M')
         endtime = datetime.strptime(request.form["endtime"], '%Y-%m-%dT%H:%M')
@@ -447,16 +452,22 @@ def changereservation(myid):
         cursor.close()
 
         cursor = g.con.cursor(buffered=True)
-        cursor.execute('SELECT id FROM `table` where capacity >= %s', (request.form["capacity"],))
+        cursor.execute('SELECT id FROM `table` where capacity = %s', (request.form["capacity"],))
         row2 = cursor.fetchone()
-        cursor.close()
         if row2 is None:
-            flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
-            if session.get('admin') == 1:
-                return redirect(url_for('admin'))
+            cursor.execute('SELECT id FROM `table` where capacity = (%s)+1', (int(request.form["capacity"]),))
+            row3 = cursor.fetchone()
+            cursor.close()
+            if row3 is None:
+                flash("Kein Tisch für diese Personenanzahl gefunden!", category="error")
+                if session.get('admin') == 1:
+                    return redirect(url_for('admin'))
+                else:
+                    return redirect(url_for('home'))
             else:
-                return redirect(url_for('home'))
-        table_id = row2[0]
+                table_id = row3[0]
+        else:
+            table_id = row2[0]
 
         # 2 Stunden Dauer nicht überschreiten
         starttime = datetime.strptime(request.form["starttime"], '%Y-%m-%dT%H:%M')
