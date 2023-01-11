@@ -606,7 +606,11 @@ def deletetable():
         if request.form.getlist('checkbox'):
             # Löscht alle Tische, die mit der Checkbox ausgewählt wurden
             for getid in request.form.getlist('checkbox'):
+                cursor.execute('ALTER TABLE reservations DROP FOREIGN KEY `table`')
                 cursor.execute("DELETE FROM `table` WHERE id=%s", (getid,))
+                cursor.execute("DELETE FROM `reservations` WHERE tableid=%s", (getid,))
+                cursor.execute(
+                    'ALTER TABLE reservations ADD CONSTRAINT `table` FOREIGN KEY (tableid) REFERENCES `table` (id)')
                 g.con.commit()
             cursor.close()
             flash("Tisch gelöscht")
