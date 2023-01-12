@@ -448,6 +448,7 @@ def changepassword():
                                (newpassword1, user_id,))
                 g.con.commit()
                 cursor.close()
+                session.clear()
                 flash("Passwort geändert")
                 return redirect(url_for('login'))
             flash("Passwörter stimmen nicht überein", category="error")
