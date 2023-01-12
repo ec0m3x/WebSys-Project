@@ -4,8 +4,9 @@ from flask import Flask, render_template, request, flash, session, url_for, g, r
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime, time
+from datetime import datetime, time, timedelta, date
 import mysql.connector
+import schedule
 
 # Import der Verbindungsinformationen zur Datenbank:
 # Variable DB_HOST: Servername des MySQL-Servers
@@ -230,6 +231,39 @@ def home():
             flash("Keine Reservierung vor 18 Uhr und nach 0 Uhr möglich", category="error")
     return render_template('home.html', reservierungdaten=reservierungdaten)
 
+# Sendet eine Erinnerungsmail für die Reservierungen die morgen anstehen
+@app.route('/sendreminder')
+@admin_required
+def sendreminder():
+    cursor = g.con.cursor()
+    cursor.execute('SELECT reservations.starttime, reservations.endtime, reservations.capacity, reservations.tableid, '
+                   'users.email FROM reservations, users WHERE reservations.userid = users.id')
+    reminders = cursor.fetchall()
+    for reminder in reminders:
+        yesterday = date.today() - timedelta(days=1)
+        starttime = reminder[0] - timedelta(days=1)
+        startdate = starttime.date()
+
+        if startdate == yesterday:
+            endtime = reminder[1]
+            capacity = reminder[2]
+            table_id = reminder[3]
+            user_email = reminder[4]
+
+            msg = Message('Erinnerung Reservierung', sender='lawebdelasys@mail.com',
+                              recipients=[user_email])
+            msg.body = f"Anbei eine Erinnerung für Ihre Reservierung morgen! \n" \
+                           f"Hier finden Sie Ihre Reservierungsdaten: \n" \
+                           f"Tisch-ID: {table_id} \n" \
+                           f"Personenanzahl: {capacity} \n" \
+                           f"Reservierungsbeginn: {starttime} \n" \
+                           f"Reservierungsende: {endtime} \n" \
+                           f"Wir freuen uns Sie bei uns Willkomen zu heißen! \n" \
+                           f"La Web de la Sys"
+
+            mail.send(msg)
+    flash('Erinnerungsmail gesendet')
+    return redirect(url_for('admin'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -1,12 +1,12 @@
 {% extends 'layout.html' %}
 {% block title %} Home {% endblock %}
 {% block content %}
+
     <form method="POST" action="/deleteres">
         <div class="container">
             <h1> Admin Bereich </h1>
             <br>
-
-            <h3>Reservierungen</h3>
+            <h3>Reservierungen | <a href="{{ url_for('sendreminder') }}">Erinnerungs-Email senden</a></h3>
             <table class="table">
                 <tr class="bg-gradient">
                     <th>Reservierungs ID</th>
