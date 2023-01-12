@@ -5334,6 +5334,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 
 .navbar-brand {
+    color: #a94442;
     float: left;
     height: 50px;
     padding: 15px 15px;
@@ -5344,6 +5345,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-brand:hover,
 .navbar-brand:focus {
     text-decoration: none;
+    color: #a94442;
 }
 
 .navbar-brand > img {
